@@ -2,7 +2,9 @@
 
 1、安装 neo4j 的机器，neo4j 版本更新为 5.4.0，相应的 java 版本更新为 jdk-17，配置方式仍然不变，看起来是能够正常运行的。
 
-[jdk17](https://rec.ustc.edu.cn/share/2e4eae10-1125-11ef-a36c-576fa8982261)          [neo4j](链接：https://rec.ustc.edu.cn/share/4b80e6a0-1125-11ef-ad66-7577a6060193)
+[jdk17](https://rec.ustc.edu.cn/share/2e4eae10-1125-11ef-a36c-576fa8982261)        
+
+[neo4j](链接：https://rec.ustc.edu.cn/share/4b80e6a0-1125-11ef-ad66-7577a6060193)
 
 2、用学校的 vlab 配置了neo4j，似乎是因为防火墙的原因，在虚拟机外面无法访问 ip，导致 web 端的功能不正常，目前正在尝试将其转移到 vmware 虚拟机中。
 
