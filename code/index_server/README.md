@@ -18,4 +18,6 @@ OSError: We couldn't connect to 'https://huggingface.co' to load this file, coul
 我尝试了使用dsw远程访问neo4j，暂时失败，所以尝试在dsw上部署，dsw上没有浏览器，所以从本地下载后上传，并使用
     `sudo apt install openjdk-17-jdk`下载jdk17
 但是此时仍然没法通过网页端访问neo4j
-尝试远程打开dsw
+尝试远程打开dsw，感觉远程有点复杂，先放个[链接](#https://blog.csdn.net/Zheng113/article/details/135351718)。
+- 另一种连接思路：进入bin文件夹，运行`./neo4j`，然后运行`./cypher-shell`，可以终端操作neo4j，设置密码为`oshvivo50`，用户为`neo4j`，然后再次运行tag文件，即可登录。
+- 从文件读数据时，SimpleDirectoryReader貌似只能从文件夹读取
