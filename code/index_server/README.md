@@ -36,3 +36,9 @@ OSError: We couldn't connect to 'https://huggingface.co' to load this file, coul
     storage_context = StorageContext.from_defaults(vector_store=neo4j_vector)
 ```
 
+### 6.2记录
+直接调用函数使得存储的内容太过复杂，不如进行精细化处理？ 先加载数据，然后切分文件，调用embedding模型生成vector， （可以的话调用rag对文档内容进行描述），最后创建Cypher语句存储向量， metadata，不同节点等等。
+经过对llamamindex说明文档的调研和学习，按照目前水平，只能实现图片和文本的多模态，对于其他的实现有难度，具体改进方法仍待思考。
+所以说可能无法理想化用一种模型处理所有数据
+
+可选择的embedded model 有HuggingFace ，chat模型有Ollama
