@@ -12,7 +12,7 @@ Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
 ```shell
 OSError: We couldn't connect to 'https://huggingface.co' to load this file, couldn't find it in the cached files and it looks like BAAI/bge-small-en-v1.5 is not the path to a directory containing a file named config.json.
 ```
-所以根据此[链接](#https://blog.csdn.net/weixin_43431218/article/details/135403324)设置镜像源，把模型下载到本地，解决该问题
+所以根据此[链接](#https://blog.csdn.net/weixin_43431218/article/details/135403324)设置镜像源`export HF_ENDPOINT=https://hf-mirror.com`，把模型下载到本地，解决该问题
 
 - dsw上部署neo4j的问题
 我尝试了使用dsw远程访问neo4j，暂时失败，所以尝试在dsw上部署，dsw上没有浏览器，所以从本地下载后上传，并使用

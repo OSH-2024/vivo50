@@ -37,3 +37,42 @@ def cmd_handler():
 
     else:
         result = ("invalid",)
+
+    sendQueue.put(str(result))
+
+
+async def login():
+    wsClient = await websockets.connect('ws://121.41.165.179:9090')
+    #发送服务器姓名
+    await wsClient.send("PYT_tag")
+    print("Connected")
+    return wsClient
+
+# 向服务器端发送认证后的消息
+async def recv_msg(websocket):
+    while True:
+        #接收命令
+        recv_text = await websocket.recv()
+        print(recv_text)
+        taskQueue.put(recv_text)
+
+        _thread.start_new_thread(cmd_handler, ())
+        #result = cmd_handler(recv_text)
+
+# 发送处理过后的消息
+async def send_msg(websocket):
+    while True:
+        while sendQueue.empty():
+            await asyncio.sleep(0.1)
+        result = sendQueue.get()
+        print("sending: ", result)
+        await websocket.send(result)
+
+# 客户端主逻辑
+def main_logic():
+    loop = asyncio.get_event_loop()
+    websocket = loop.run_until_complete(login())
+    loop.run_until_complete(asyncio.wait([recv_msg(websocket), send_msg(websocket)]))
+
+if __name__ == "__main__":
+    main_logic()
