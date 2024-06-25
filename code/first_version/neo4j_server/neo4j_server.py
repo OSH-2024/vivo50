@@ -45,3 +45,32 @@ def neo_driver():
     graph= Graph(uri, auth=(user, password))
     return graph
 
+if __name__ == "__main__":
+    # 创建neo4j_driver
+    graph = neo_driver()
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # 监听
+    sock.bind((listen_ip, listen_port))
+    sock.listen(1)
+
+    # 接收数据
+    while True:
+        receive_data = b""
+        conn, addr = sock.accept()
+        print("neo连接已建立:", addr)
+        while True:
+            chunk = conn.recv(4096)
+            if not chunk:
+                break
+            # print("----Check----:",chunk)
+            receive_data += chunk      
+        receive_data = receive_data.decode("utf-8")
+        receive_data = eval(receive_data)
+        command = receive_data[0]
+        conn.close()
+        print("neo接收消息成功")
+        print("     ---Check---:receive_data:"+receive_data)
+        if command == "Upload":
+            vector = receive_data[-2]
+            tags   = eval(receive_data[-1])
+  
