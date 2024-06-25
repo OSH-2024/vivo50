@@ -1,7 +1,7 @@
 import os
 import sys
 import socket
-import tagging
+import tag_server
 
 sys.path.append(os.path.dirname(sys.path[0]))
 import config
@@ -14,30 +14,33 @@ neo_ip=settings["neo_ip"]
 neo_port=settings["Ray_send_neo"]
 
 use_ray=settings["use_ray"]
-# message²ÉÓÃÁĞ±í¸ñÊ½
-"""
-message[0] ´ú±íuploadµÈÀàĞÍ
-message[1] Èç¹ûÓĞÎÄ¼ş,´ú±ífilename
-message[2] ´ú±íÎÄ¼şÂ·¾¶
-message[3] ´ú±íÎÄ¼şid
-"""
+split_char=settings["split_char"]
+keywords_num=settings["keywords_num"]
+
+result_holder = [False]
+
+
 def ray_control(message):
-    command = message[0]  # »ñÈ¡´¦ÀíÀàĞÍ
+    command = message.split(split_char)[0]  # è·å–å¤„ç†ç±»å‹
     if command == "Upload":
-        filename = message[1]
-        filepath = message[2]
-        fileid   = message[3]
-        Upload(filename, filepath, fileid)
+        file_name = message.split(split_char)[1]
+        file_path = message.split(split_char)[2]
+        file_id   = message.split(split_char)[3]
+        Upload(file_name, file_path, file_id)
     elif command = "Delete":
-        filename = message[1]
-        fileid   = message[2]
-        Delete(filename, fileid)
-    elif command = "Search":
+    # è·å–åœ¨juicefsä¸­çš„ä½ç½®å’Œæ–‡ä»¶åï¼Œä»è€Œåˆ é™¤æ–‡ä»¶
+        file_name = message.split(split_char)[1]
+        file_path = message.split(split_char)[2]
+        file_id   = message.split(split_char)[3]
+        Delete(file_name, file_path, file_id)
+
 
 def Upload(filename, filepath, fileid):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+
     
-def Delete(filename, fileid):
+def Delete(filename, filepath, fileid):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   
     send_data = ["Delete", filename, "None", fileid]
     try:
@@ -50,18 +53,18 @@ def listening(listen_ip, listen_port):
     try:
 
         sock.bind((listen_ip, listen_port))
-        # ¼àÌıÁ¬½Ó
+        # ç›‘å¬è¿æ¥
         sock.listen(1)
-        print("RayÄ£¿éµÈ´ıÁ¬½Ó...")
-        # ½ÓÊÜÁ¬½Ó
+        print("Rayæ¨¡å—ç­‰å¾…è¿æ¥...")
+        # æ¥å—è¿æ¥
         conn, addr = sock.accept()
-        print("RayÄ£¿éÁ¬½ÓÒÑ½¨Á¢:", addr)
-        # ´´½¨±£´æÎÄ¼şµÄ¿ÕÎÄ¼ş
+        print("Rayæ¨¡å—è¿æ¥å·²å»ºç«‹:", addr)
+        # åˆ›å»ºä¿å­˜æ–‡ä»¶çš„ç©ºæ–‡ä»¶
         data = conn.recv(4096)
         data=data.decode('utf-8')
         if(data == "Success"):
             result_holder[0]=True
             # print("     ----Check----result_holder:" + str(result_holder))
-        # ¹Ø±ÕÁ¬½Ó
+        # å…³é—­è¿æ¥
     finally:
         sock.close()        
