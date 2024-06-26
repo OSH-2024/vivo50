@@ -23,10 +23,13 @@
 
 7、运行 `Central_server` 下的 `Central_Module.py` 和 `web_server` 下的 `web_server.py`。然后在浏览器中输入 `localhost:5000` 这个网址，就可以访问文件系统。
 
+8、启动 `neo4j`，在终端中收入`cd neo4j-community-5.4.0/bin/` ，然后输入 `./neo4j start`。
+
+9、运行 `neo4j_server` 下的 `neo4j_server.py`,在 `http://0.0.0.0:7474/browser/` 下即可查看图数据库中的结点。
+
 ## 实现功能
 
-目前实现的功能相当于去年 `My-Glow` 小组的 `web_server` 、`central_server` 以及 `storage_server` 三个模块。其中 `web_server` 的部分还需要和反向代理相结合，`central_server` 部分需要和打标部分以及图数据库部分相结合。用户可以在当前的文件系统中上传文件，下载文件，创建文件夹，删除文件以及文件夹。
-
+目前实现的功能相当于去年 `My-Glow` 小组的 `web_server` 、`central_server` 、 `storage_server` 以及 `neo4j_server` 四个模块。其中 `web_server` 部分已经和反向代理结合完毕，`central_server` 部分已经和图数据库部分结合完毕，目前还需要对文件系统的一致性进行优化，统一 `message` 的格式以及加入自然语言都所的部分，当然前端部分也要进行相应的修改。用户可以在当前的文件系统中上传文件，下载文件，创建文件夹，删除文件以及文件夹，并在图数据库中查看文件和标签之间的关系。
 
 
 
