@@ -25,26 +25,26 @@ def call_ray():
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     ###########
     try:
-        # è¿æ¥ç›®æ ‡ä¸»æœº
-        print("å°è¯•è¿æ¥")
+        # ¿¿¿¿¿¿
+        print("¿¿¿¿")
         sock.connect((ray_ip, ray_port))
-        # æ‰“å¼€è¦å‘é€çš„æ–‡ä»¶
+        # ¿¿¿¿¿¿¿¿
         sock.sendall("Success".encode("utf-8"))
-        print("å‘é€neo4jç¼“å­˜æˆåŠŸæ¶ˆæ¯")
+        print("¿¿neo4j¿¿¿¿¿¿")
         if_success = result_holder[0]
     except Exception as e:
-        print("å‘é€æ ‡ç­¾æ—¶å‡ºç°é”™è¯¯:", str(e))
+        print("¿¿¿¿¿¿¿¿¿:", str(e))
     finally:
-        # å…³é—­å¥—æ¥å­—
+        # ¿¿¿¿¿
         sock.close()
 
 def neo_driver():
-    # Neo4jæ•°æ®åº“çš„è¿æ¥åœ°å€å’Œç«¯å£å·
+    # Neo4j¿¿¿¿¿¿¿¿¿¿¿¿
     uri = "bolt://localhost:7687"
-    # èº«ä»½éªŒè¯ä¿¡æ¯
+    # ¿¿¿¿¿¿
     user = "neo4j"
     password = "vivo5000"
-    # åˆ›å»ºNeo4jæ•°æ®åº“é©±åŠ¨
+    # ¿¿Neo4j¿¿¿¿¿
     graph= Graph(uri, auth=(user, password))
     return graph
 
@@ -52,19 +52,19 @@ if __name__ == "__main__":
     graph=neo_driver()
     matcher = NodeMatcher(graph)
     # event=threading.Event()
-    print("æˆåŠŸåˆ›å»ºneo4jçš„driver")
+    print("¿¿¿¿neo4j¿driver")
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
         sock.bind((listen_ip, listen_port))
         sock.listen(1)
-        print("neoç­‰å¾…è¿æ¥...")
+        print("neo¿¿¿¿...")
 
         while(True):
             receive_data = b""
             conn, addr = sock.accept()
-            print("neoè¿æ¥å·²å»ºç«‹:", addr)
-            # æ¥æ”¶æ¶ˆæ¯
+            print("neo¿¿¿¿¿:", addr)
+            # ¿¿¿¿
             while True:
                 chunk = conn.recv(4096)
                 if not chunk:
@@ -76,17 +76,17 @@ if __name__ == "__main__":
             data_temp=receive_data
             command=data_temp.split(split_char)[0]
             conn.close()
-            print("neoæ¥æ”¶æ¶ˆæ¯æˆåŠŸ")
+            print("neo¿¿¿¿¿¿")
             print("     ---Check---:receive_data:"+receive_data)
             if command != "Commit":
                 with open(temp+"temp.temp", "wb") as file:
                     file.write(receive_data.encode("utf-8"))
-                print("å­˜å…¥ç¼“å­˜æˆåŠŸ")
+                print("¿¿¿¿¿¿")
                 call_ray()
             else:
                 with open(temp+"temp.temp", "r") as file:
                     cache_data=file.read()
-                print("è¯»å–ç¼“å­˜æˆåŠŸ")
+                print("¿¿¿¿¿¿")
                 split_char = "%$$%@#!#(*%^&%"
                 cache_command=cache_data.split(split_char)[0]
                 filename=cache_data.split(split_char)[1]
@@ -96,7 +96,7 @@ if __name__ == "__main__":
                     tags=eval(tags)
                     print("     ----Check----tags_num:" + str(len(tags)))
                     print("     ----Check----tags:"+str(tags))
-                    # åˆ›å»ºç»“ç‚¹
+                    # ¿¿¿¿
                     nodes = [Node("File",name=filename,fileid=fileid)]
                     file_precreate_nodes=[]
                     for tag in tags:
@@ -110,9 +110,9 @@ if __name__ == "__main__":
                     for nodes in file_precreate_nodes:
                         for node in nodes:
                             file_create_node_id.append(node.identity)
-                    print("åˆ›å»ºç»“ç‚¹æˆåŠŸ")
+                    print("¿¿¿¿¿¿")
                     print("     ----Check----file_create_node:" + str(len(file_create_node_id)))
-                    # åˆ›å»ºè¾¹
+                    # ¿¿¿
                     relationships=[]
                     for i,tag in enumerate(tags):
                         if i!=0:
@@ -123,30 +123,30 @@ if __name__ == "__main__":
                     for tag in tags:
                         values.append(tag[1])
                     no.create_relationships(graph, relationships,values)
-                    print("åˆ›å»ºè¾¹æˆåŠŸ")
+                    print("¿¿¿¿¿")
                 if cache_command == "Delete":
-                    print("å°è¯•åˆ é™¤")
+                    print("¿¿¿¿")
                     try:
                         print("     ----Check----fileid:"+str(fileid))
                         nodes = matcher.match("File", fileid=fileid)
                         for node in nodes:
                             # print("     ----Check----node:" + str(node))
                             graph.delete(node)
-                            print("èŠ‚ç‚¹åˆ é™¤æˆåŠŸ")
+                            print("¿¿¿¿¿¿")
                     except Exception as e:
-                        print("èŠ‚ç‚¹åˆ é™¤å¤±è´¥:", e)
-                    # ä½¿ç”¨ Cypher æŸ¥è¯¢æ‰¾åˆ°å­¤ç«‹èŠ‚ç‚¹
+                        print("¿¿¿¿¿¿:", e)
+                    # ¿¿ Cypher ¿¿¿¿¿¿¿¿
                     query = f"MATCH (n:Tag) WHERE NOT ()--(n) RETURN n"
                     result = graph.run(query)
-                    # éå†ç»“æœå¹¶åˆ é™¤å­¤ç«‹èŠ‚ç‚¹
+                    # ¿¿¿¿¿¿¿¿¿¿¿
                     for record in result:
                         node = record["n"]
                         print(node)
                         try:
-                            graph.delete(node)  # åˆ é™¤èŠ‚ç‚¹åŠå…¶å…³ç³»è¾¹
-                            print("å­¤ç«‹èŠ‚ç‚¹åˆ é™¤æˆåŠŸ")
+                            graph.delete(node)  # ¿¿¿¿¿¿¿¿¿
+                            print("¿¿¿¿¿¿¿¿")
                         except Exception as e:
-                            print("å­¤ç«‹èŠ‚ç‚¹åˆ é™¤å¤±è´¥:", e)
-                    print("DeleteæˆåŠŸ")
+                            print("¿¿¿¿¿¿¿¿:", e)
+                    print("Delete¿¿")
     finally:
         sock.close()
