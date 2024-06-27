@@ -3,6 +3,8 @@ import sys
 import socket
 import node_operation as no
 from py2neo import Graph, Node, NodeMatcher
+from py2neo import Relationship, NodeMatch
+from py2neo.matching  import NodeMatcher
 
 sys.path.append(os.path.dirname(sys.path[0]))
 import config
@@ -13,6 +15,7 @@ listen_ip=settings["listen_ip"]
 listen_port=settings["neo_listen_Ray"]
 ray_ip=settings["central_ip"]
 ray_port=settings["neo_send_Ray"]
+split_char=settings["split_char"]
 
 download_path=settings["download_path"]
 temp="..\\temp\\"
@@ -72,7 +75,6 @@ if __name__ == "__main__":
                 # print("----Check----:",chunk)
                 receive_data += chunk
             receive_data = receive_data.decode("utf-8")
-            split_char = "%$$%@#!#(*%^&%"
             data_temp=receive_data
             command=data_temp.split(split_char)[0]
             conn.close()
@@ -87,43 +89,30 @@ if __name__ == "__main__":
                 with open(temp+"temp.temp", "r") as file:
                     cache_data=file.read()
                 print("读取缓存成功")
-                split_char = "%$$%@#!#(*%^&%"
                 cache_command=cache_data.split(split_char)[0]
-                filename=cache_data.split(split_char)[1]
-                fileid=cache_data.split(split_char)[3]
+                fileid=cache_data.split(split_char)[1]
+                filename=cache_data.split(split_char)[2]
+                filepath=cache_data.split(split_char)[3]
                 if cache_command == "Upload":
-                    tags=cache_data.split(split_char)[2]
+                    tags=cache_data.split(split_char)[4]
                     tags=eval(tags)
                     print("     ----Check----tags_num:" + str(len(tags)))
                     print("     ----Check----tags:"+str(tags))
                     # 创建结点
-                    nodes = [Node("File",name=filename,fileid=fileid)]
-                    file_precreate_nodes=[]
+                    file_node = Node("File",name=filename,fileid=fileid) 
+                    graph.create(file_node)                                 #创建文件代表的节点
                     for tag in tags:
-                        node_match = matcher.match("Tag",name=tag[0])
-                        if len(node_match) != 0:
-                            file_precreate_nodes.append(node_match)
-                            continue
-                        nodes.append(Node("Tag",name=tag[0]))
-                    print("     ----Check----nodes_num:"+str(len(nodes)))
-                    file_create_node_id=no.create_nodes(graph,nodes)
-                    for nodes in file_precreate_nodes:
-                        for node in nodes:
-                            file_create_node_id.append(node.identity)
-                    print("创建结点成功")
-                    print("     ----Check----file_create_node:" + str(len(file_create_node_id)))
-                    # 创建边
-                    relationships=[]
-                    for i,tag in enumerate(tags):
-                        if i!=0:
-                            relationships.append({'start_node_id': file_create_node_id[i], 'end_node_id': file_create_node_id[0]})
-                    relationships.append({'start_node_id': file_create_node_id[-1], 'end_node_id': file_create_node_id[0]})
-                    print("     ----Check----relationships_num:"+str(len(relationships)))
-                    values=[]
-                    for tag in tags:
-                        values.append(tag[1])
-                    no.create_relationships(graph, relationships,values)
-                    print("创建边成功")
+                        matcher = NodeMatcher(graph)    
+                        result = matcher.match("Tag").where("_.name=" + "'" + tag + "'").first()
+                        # print(type(result))
+                        #result = matcher.match("Tag").where("_.name=tag").first()  #使用NodeMatch进行匹配
+                        if result:
+                            tag_node = result
+                        else :
+                            tag_node = Node("Tag",name=tag)
+                            graph.create(tag_node)
+                        tmp_rela = Relationship(tag_node, 'IS_TAG', file_node)
+                        graph.create(tmp_rela)
                 if cache_command == "Delete":
                     print("尝试删除")
                     try:
@@ -150,3 +139,4 @@ if __name__ == "__main__":
                     print("Delete成功")
     finally:
         sock.close()
+
