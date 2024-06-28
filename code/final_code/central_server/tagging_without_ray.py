@@ -69,7 +69,7 @@ def img_tagging(file_path, keywords_num=10):
     with open(file_path, 'rb') as f:
         file_bytes = f.read()
     # 设置Clarifai的API密钥
-    api_key = 'bd56672a34a84a94a103b9847b2a28b2'
+    api_key = ''
     application_id="Vivo50"
     # 验证
     metadata = (("authorization", f"Key {api_key}"),)
@@ -209,7 +209,7 @@ def mp32wav(mp3_file, wav_file):
 
 def code2txt(code_file, txt_file):
     # 设置你的 OpenAI API 密钥
-    openai.api_key = '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'
+    openai.api_key = ''
     with open(code_file, "r", encoding="utf-8") as f:
         content = f.read()
     # 定义聊天的输入和参数

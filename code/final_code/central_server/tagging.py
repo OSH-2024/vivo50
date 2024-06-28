@@ -51,7 +51,7 @@ def img_tagging(file_path, keywords_num=10):
     with open(file_path, 'rb') as f:
         file_bytes = f.read()
     # 设置Clarifai的API密钥
-    api_key = 'bd56672a34a84a94a103b9847b2a28b2'
+    api_key = ''
     application_id="Vivo50"
     # 验证
     metadata = (("authorization", f"Key {api_key}"),)
