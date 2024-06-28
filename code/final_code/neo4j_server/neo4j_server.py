@@ -1,7 +1,6 @@
 import os
 import sys
 import socket
-import node_operation as no
 from py2neo import Graph, Node, NodeMatcher
 from py2neo import Relationship, NodeMatch
 from py2neo.matching  import NodeMatcher
@@ -99,14 +98,15 @@ if __name__ == "__main__":
                     print("     ----Check----tags_num:" + str(len(tags)))
                     print("     ----Check----tags:"+str(tags))
                     # 创建结点
-                    # file_node = Node("File",name=filename,fileid=fileid) 
-                    # graph.create(file_node)                                 #创建文件代表的节点
-                    
-                    # 查询出对应结点，并创建File标签
+                    file_node = Node("File",name=filename,fileid=fileid) 
+                    graph.create(file_node)                                 #创建文件代表的节点
+
+                    '''
+                    这里是要改成按照fileid查询的
                     query = "MATCH (n:Chunk{file_name: \""+ filename+ "\", file_path:\"" + filepath+"\" }) SET n:File SET n.file_ID ="+ fileid + " RETURN n"
                     # print(query)
                     file_node = graph.run(query)
-
+                    '''
                     for tag in tags:
                         matcher = NodeMatcher(graph)    
                         result = matcher.match("Tag").where("_.name=" + "'" + tag + "'").first()
@@ -123,11 +123,10 @@ if __name__ == "__main__":
                     print("尝试删除")
                     try:
                         print("     ----Check----fileid:"+str(fileid))
-                        nodes = matcher.match("File", fileid=fileid)
-                        for node in nodes:
-                            # print("     ----Check----node:" + str(node))
-                            graph.delete(node)
-                            print("节点删除成功")
+                        matcher = NodeMatcher(graph)
+                        result = matcher.match("File").where("_.fileid=" + "'" + fileid + "'").first()
+                        graph.delete(result)
+                        print("节点删除成功")
                     except Exception as e:
                         print("节点删除失败:", e)
                     # 使用 Cypher 查询找到孤立节点
@@ -145,4 +144,3 @@ if __name__ == "__main__":
                     print("Delete成功")
     finally:
         sock.close()
-

@@ -35,30 +35,30 @@
 
   
 
-  ### 二、安装  neo4j
+### 二、安装  neo4j
 
-  - 找到压缩包` neo4j-community-5.4.0-unix.tar.gz`
+- 找到压缩包` neo4j-community-5.4.0-unix.tar.gz`
 
-  - 解压缩
+- 解压缩
 
-    `tar -xvf neo4j-community-5.4.0-unix.tar.gz`
+ `tar -xvf neo4j-community-5.4.0-unix.tar.gz`
 
-  - 找到解压缩后的文件夹修改配置文件，该配置文件是在 `/neo4j-community-5.4.0/conf` 中的 `neo4j.conf`
+- s找到解压缩后的文件夹修改配置文件，该配置文件是在 `/neo4j-community-5.4.0/conf` 中的 `neo4j.conf`
 
-    `sudo vim neo4j.conf`
+`sudo vim neo4j.conf`
 
-  - 把 `neo4j.conf` 的内容改为当前文件夹下的 `neo4j.conf` 的内容
+- 把 `neo4j.conf` 的内容改为当前文件夹下的 `neo4j.conf` 的内容
 
-  - 启动服务（同样道理./neo4j stop停止服务）
+- 启动服务（同样道理./neo4j stop停止服务）
 
-    `cd neo4j-community-5.4.0/bin/`
+`cd neo4j-community-5.4.0/bin/`
 
-    `./neo4j start`
+`./neo4j start`
 
-  - 浏览器查看 http://0.0.0.0:7474/ 登录用户名密码默认都是 `neo4j` 会让修改一下密码，这里我将密码改为了 `vivo5000`，注意要修改 `label.html` 第 `173` 行和 `neo4j_server.py` 中相应的部分
+- 浏览器查看 http://0.0.0.0:7474/ 登录用户名密码默认都是 `neo4j` 会让修改一下密码，这里我将密码改为了 `vivo5000`，注意要修改 `label.html` 第 `173` 行和 `neo4j_server.py` 中相应的部分
 
     [![image-20220405153110974](https://github.com/OSH-2023/My-Glow/raw/main/deploy/src/image-20220405153110974.png)](https://github.com/OSH-2023/My-Glow/blob/main/deploy/src/image-20220405153110974.png)
 
-  - 注：可能会出现按照上述步骤配置，能够在命令行显示 `neo4j` 已经启动，但是浏览器打开对应网址却无法加载，这时考虑是否是因为虚拟机的防火墙导致，关闭防火墙指令：
+- 注：可能会出现按照上述步骤配置，能够在命令行显示 `neo4j` 已经启动，但是浏览器打开对应网址却无法加载，这时考虑是否是因为虚拟机的防火墙导致，关闭防火墙指令：
 
-    `sudo ufw disable`
+`sudo ufw disable`

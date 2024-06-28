@@ -4,8 +4,7 @@ import sys
 import queue
 import socket
 from threading import Thread
-# from EC_Module import erasure
-# from Ray_Module import ray_control
+from Ray_Module import ray_control
 
 sys.path.append(os.path.dirname(sys.path[0]))
 import config
@@ -17,12 +16,11 @@ listen_port = settings["central_listen_web"]
 web_ip=settings["web_ip"]
 web_port=settings["central_send_web"]
 
-absolute_path=settings["absolute_path"]
+download_path=settings["download_path"]
 upload_path=settings["upload_path"]
 storage_path=settings["storage_path"]
 use_ray=settings["use_ray"]
 split_char=settings["split_char"]
-temp="/"
 
 
 def listenning():
@@ -57,18 +55,18 @@ def listenning():
             # print('命令是：')
             # print('message:', message)
 
-            if message[0] == b'Upload':  # 上传：Upload,file_id,filename,content
+            if message[0] == b'Upload':  # 上传：Upload,fileid,filename,filepath,content
                 message[0] = message[0].decode('utf-8')
                 message[1] = message[1].decode('utf-8')
-                print(message[1])
+                #print(message[1])
                 message[2] = message[2].decode('utf-8')
-                file_name = os.path.join(upload_path+temp, message[2])
+
                 message[3] = message[3].decode('utf-8')
                 content = message[4]
 
                 print('上传的文件内容是')
                 print(content)
-
+                file_name = os.path.join(upload_path + message[3], message[2])
                 with open(os.path.join(file_name), 'wb') as file:
                     # while True:
                     #     print(len(content))
@@ -135,20 +133,18 @@ def handle_web_message():
             command=message[0]
             fileid=message[1]
             filename=message[2]
+            filepath=message[3]
             if command == 'Upload':
-                filepath=message[3]
                 content=message[4]
               #  print(message)
-                if FileUpload(content, filename, filepath):
+                if FileUpload(fileid, filename, filepath, content):
                     print('upload success')
 
             elif command == 'Download':
-                filepath=message[3]
                 if FileDownload(fileid, filename, filepath):
                     print('download success')
 
             elif command == 'Delete':
-                filepath=message[3]
                 if FileDelete(fileid, filename, filepath):
                     print('Delete success')
                 # if remove(message[1],message[2]):
@@ -170,25 +166,38 @@ def send_message_to_web(message):
         sock_web.close()
 
 
-def FileUpload(filecontent, filename, file_path):  # filepath 要上传的文件存储在中央服务器的地址
+def FileUpload(fileid, filename, filepath, filecontent):  # filepath 要上传的文件存储在中央服务器的地址
     print("开始上传")
-    file_name = os.path.join(storage_path,file_path,filename)
+    file_name = os.path.join(storage_path+filepath,filename)  # 这个是正式存入juicefs的path
+    tmpfile_path = os.path.join(upload_path + filepath,filename)  # 这个是上传文件的缓冲区路径
+    if ray_control('Upload' + split_char + fileid + split_char + filename + split_char + tmpfile_path) is False:
+        print('Ray模块标签存入缓冲区错误')
+        send_message_to_web('Upload fail')
+        return False
+    print("所有模块准备完成,开始正式写入:")
+    if ray_control('Commit'+ split_char + fileid + split_char + filename + split_char + tmpfile_path) is False:
+        print('ray commit error')
+        return False
+    print("写入Ray模块成功")
+    print("开始写入JuiceFS")
  #   print('-----------------------------')
  #   print()
  #   print(file_name)
+
     with open(file_name, "wb") as file:
         file.write(filecontent)
-    print("写入juicefs成功")
+    print("写入JuiceFS成功")
     send_message_to_web('Upload success')
     return True
 
 
-def FileDownload(file_id, filename, file_path):
+def FileDownload(fileid, filename, filepath):
     sock_web = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     print('开始下载')
     try:
         sock_web.connect((web_ip, web_port))
         # 打开要发送的文件
+        file_path = os.path.join(storage_path, filepath)
         with open(file_path, 'rb') as file:
             # 读取文件内容
             data = file.read()
@@ -203,12 +212,25 @@ def FileDownload(file_id, filename, file_path):
 
 
 def FileDelete(fileid, filename, filepath):
+    print("开始删除")
+    delete_path = storage_path + filepath  # 这个是要删除文件在juicefs的path
+    tmpfile_path = upload_path + filepath  # 这个是要删除文件的缓冲区路径,是包括文件名的
+    if ray_control('Delete' + split_char + fileid + split_char + filename + split_char + tmpfile_path) is False:
+        print('Ray模块标签存入缓冲区错误')
+        send_message_to_web('Delete fail')
+        return False
+    print("所有模块准备完成,开始正式删除:")
+    if ray_control('Commit'+ split_char + fileid + split_char + filename + split_char + tmpfile_path) is False:
+        print('ray commit error')
+        return False
+    print("Ray模块删除成功")
     print("开始在JuiceFS中删除文件")
-    delete_path = storage_path + filepath
     os.remove(delete_path)
+    os.remove(tmpfile_path)
     #print(filepath)
     #print(fileid)
     #print(filename)
+    print("在JuiceFS中删除成功")
     send_message_to_web('Delete success')
     return True
 
@@ -233,3 +255,4 @@ if __name__ == "__main__":
     handle_thread.start()
     listen_thread.join()
     handle_thread.join()
+
