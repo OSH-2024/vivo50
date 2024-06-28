@@ -8,8 +8,8 @@
     <script src="../static/assets/js/index.js"></script>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <title>MyGlow File System</title>
-    <meta name="description" content="MyGlow is a File System.">
+    <title>Vivo50 File System</title>
+    <meta name="description" content="Vivo50 is a File System.">
     <link rel="shortcut icon" href="../../../src/My-Glow.jpg" type="image/x-icon">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Bootstrap CSS -->
@@ -52,15 +52,15 @@
             background-color: #f2f2f2;
         }
 
-        .background-image {
+        /*.background-image { 
             background-image: url("../static/assets/images/vz1gcIr.png");
-            background-size: cover;
-            /* 背景图片尺寸调整 */
-            background-repeat: no-repeat;
-            /* 防止背景图片重复 */
-            background-attachment: fixed;
-            /* 其他样式属性 */
-        }
+            background-size: cover;*/
+        /* 背景图片尺寸调整 */
+        /* background-repeat: no-repeat; */
+        /* 防止背景图片重复 */
+        /* background-attachment: fixed; */
+        /* 其他样式属性 */
+        /* }  */
 
         .content-container {
             padding-top: 72.57px;
@@ -149,7 +149,7 @@
                     <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
                         <nav class="navbar navbar-expand-lg navbar-classic">
                             <a class="navbar-brand" href="index.html">
-                                <h3>MyGlow</h3>
+                                <h3>Vivo50</h3>
                             </a>
                             <button class="navbar-toggler collapsed" type="button" data-toggle="collapse"
                                 data-target="#navbar-classic" aria-controls="navbar-classic" aria-expanded="false"
@@ -159,11 +159,14 @@
                                 <span class="icon-bar bottom-bar"></span>
                             </button>
                             <div class="collapse navbar-collapse" id="navbar-classic">
-                                <div class="header-btn mx-auto">
+                                <!-- <div class="header-btn mx-auto">
                                     <a id="file-link" href="./index.html">File</a>
                                 </div>
                                 <div class="header-btn mx-auto">
                                     <a id="graph-link" href="./label.html">Graph</a>
+                                </div> -->
+                                <div class="header-btn mx-auto">
+                                    <a id="neo4j-link" href="http://0.0.0.0:7474/browser">neo4j</a>
                                 </div>
                             </div>
                         </nav>
@@ -300,6 +303,13 @@
                     <input type="submit" value="Delete" class="btn btn-primary">
                 </form>
             </div>
+        </div>
+        <br>
+        <div class="form-container">
+            <form action="{{ url_for('search', path=path  )}}" method="post" enctype="multipart/form-data">
+                <input type="text" name="query" id="query_content">
+                <input type="submit" value="Search" class="btn btn-primary">
+            </form>
         </div>
     </div>
 </body>
