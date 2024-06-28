@@ -2,7 +2,6 @@ import os
 import sys
 import socket
 import tagging
-import tagging_without_ray
 
 sys.path.append(os.path.dirname(sys.path[0]))
 import config
@@ -39,10 +38,7 @@ def ray_control(message):
 
 def Upload(fileid,filename,filepath):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    if use_ray:
-        keywords = tagging.tagging(filepath)
-    else:
-        keywords= tagging_without_ray.tagging(filepath,keywords_num)
+    keywords = tagging.tagging(filepath)
     send_data="Upload"+split_char+fileid+split_char+filename+split_char+filepath + split_char + keywords
     print("关键字是")
     print(keywords)
