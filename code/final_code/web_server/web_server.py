@@ -147,6 +147,17 @@ def new_dir():
         message_forward('success')
         message_forward('新建文件夹成功！')
     return redirect(url_for('index'))
+    
+@app.route('/search', methods=['GET','POST'])
+def search():
+    if request.method == 'POST':
+        query = request.form.get('query', '')
+        if query=='':
+            print('问题不能为空')
+            return redirect(url_for('index'))
+        print(query)
+        message_forward('search success')
+    return redirect(url_for('index'))
 
 
 @socketio.on('message')
