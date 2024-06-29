@@ -171,4 +171,3 @@ def solve(filepath):
     tags = repr(tmp_answer.split(', '))
     print("     ----Check----tags:"+str(tags))
     return tags
-

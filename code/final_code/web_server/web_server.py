@@ -147,7 +147,8 @@ def new_dir():
         message_forward('success')
         message_forward('新建文件夹成功！')
     return redirect(url_for('index'))
-    
+
+
 @app.route('/search', methods=['GET','POST'])
 def search():
     if request.method == 'POST':
@@ -159,7 +160,6 @@ def search():
         message_forward('search success')
         l = ["abc", "123", "efg"]
     return render_template('index.html', file_addresses = l)#渲染网页
-
 
 
 @socketio.on('message')

@@ -14,7 +14,7 @@ from clarifai_grpc.grpc.api import service_pb2_grpc
 from clarifai_grpc.grpc.api.status import status_code_pb2
 from clarifai_grpc.grpc.api import service_pb2, resources_pb2
 from clarifai_grpc.channel.clarifai_channel import ClarifaiChannel
-
+from collections import Counter
 
 sys.path.append(os.path.dirname(sys.path[0]))
 import config
@@ -69,20 +69,29 @@ def img_tagging(file_path, keywords_num=10):
     print("     ----Check----keywords_num:"+str(keywords_num))
     return solve(file_path)
 
+def count_and_sort(lst):
+    # 统计元素出现的次数
+    counter = Counter(lst)
+    # 按照统计次数从多到少排序
+    sorted_items = sorted(counter.items(), key=lambda x: x[1], reverse=True)
+    return sorted_items
+
 def mp4_tagging(file_path,keywords_num=10,save_path=temp+'img_save'):
     img_num=vedio2img(file_path,save_path,keywords_num)
-    tags,tags_name=[],[]
+    tags = []
+    final_tags = []
     for i in range(img_num):
         results=img_tagging(save_path+"/"+str(i)+".jpg",keywords_num)
         results=eval(results)
         # print("     ----Check----results:"+str(results))
         for result in results:
-            if result[0] not in tags_name:
-                tags_name.append(result)
-                tags.append(result)
-    sorted_tags = sorted(tags, key=lambda x: float(x[1]), reverse=True)
+            tags.append(result)
+    sorted_tags = count_and_sort(tags)
+    for item, count in sorted_tags:
+        final_tags.append(item)
     print("     ----Check----tags:" + str(list(sorted_tags)[0:keywords_num]))
-    return repr(list(tags)[0:keywords_num])
+    print("     ----Check----tags:" + str(list(final_tags)[0:keywords_num]))
+    return repr(list(final_tags)[0:keywords_num])
 
 def wav_tagging(file_path,keywords_num=10):
     speech2txt(file_path,temp+"wav2txt.txt")
@@ -164,6 +173,13 @@ def speech2txt(filepath,savepath):
         #得到语音数据
         audio = r.record(source)
     print("进行语音识别")
+    try:
+        text = r.recognize_google(audio, language="en-US")  # 设置语言为英文，可以根据需要修改
+        print("转换结果：", text)
+    except sr.UnknownValueError:
+        print("无法识别音频中的语音")
+    except sr.RequestError as e:
+        print("无法从Google Speech Recognition服务获取结果： {0}".format(e))
     text=r.recognize_sphinx(audio)
     print("音频转文字成功")
     with open(savepath,"w") as f:
@@ -225,15 +241,15 @@ def tagging(file_path,keywords_num=10):
     return keywords
 
 if __name__ == "__main__":
-    # tagging("text.txt",keywords_num=10)
-    # tagging("doc.doc",keywords_num=10)
-    # tagging("md.md",keywords_num=10)
-    # tagging("pdf.pdf",keywords_num=10)
-    # tagging("cat.jpg",keywords_num=10)
-    # tagging("sky.png",keywords_num=10)
-    # tagging("en.wav",keywords_num=10)
-    # tagging("mp3.mp3",keywords_num=10)
-    # tagging("vedio.mp4",keywords_num=10)
+    # tagging("1.txt",keywords_num=10)
+    # tagging("1.doc",keywords_num=10)
+    # tagging("1.md",keywords_num=10)
+    # tagging("dogs' friend.pdf",keywords_num=10)
+    # tagging("dog0.jpg",keywords_num=10)
+    # tagging("1.png",keywords_num=10)
+    # tagging("1.mp4",keywords_num=10)
+
+    # tagging("1.wav",keywords_num=10)
+    tagging("1.mp3",keywords_num=10)
     # tagging("test.py",keywords_num=100)
     pass
-
