@@ -157,7 +157,9 @@ def search():
             return redirect(url_for('index'))
         print(query)
         message_forward('search success')
-    return redirect(url_for('index'))
+        l = ["abc", "123", "efg"]
+    return render_template('index.html', file_addresses = l)#渲染网页
+
 
 
 @socketio.on('message')
