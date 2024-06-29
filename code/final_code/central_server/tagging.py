@@ -1,9 +1,11 @@
 import os
+import re
 import cv2
 import sys
 import torch
 import openai
 import markdown
+import enchant
 import slate3k as slate
 import speech_recognition as sr
 from docx import Document
@@ -19,9 +21,10 @@ from collections import Counter
 sys.path.append(os.path.dirname(sys.path[0]))
 import config
 from imgtagging import solve
+from speech2txt import beginchange
 setting=config.args()
 settings=setting.set
-
+spell_checker = enchant.Dict("en_US")
 download_path=settings["download_path"]
 temp="..\\temp\\"
 
@@ -168,22 +171,25 @@ def vedio2img(file_path,save_path,keywords_num=10):
     return count
 
 def speech2txt(filepath,savepath):
-    r = sr.Recognizer()
-    with sr.AudioFile(filepath) as source:
-        #得到语音数据
-        audio = r.record(source)
-    print("进行语音识别")
-    try:
-        text = r.recognize_google(audio, language="en-US")  # 设置语言为英文，可以根据需要修改
-        print("转换结果：", text)
-    except sr.UnknownValueError:
-        print("无法识别音频中的语音")
-    except sr.RequestError as e:
-        print("无法从Google Speech Recognition服务获取结果： {0}".format(e))
-    text=r.recognize_sphinx(audio)
-    print("音频转文字成功")
-    with open(savepath,"w") as f:
-        f.write(text)
+    tmppath = "hahahahaha.txt"
+    beginchange(filepath,tmppath)
+    # 打开文件并读取内容
+    with open(tmppath, 'r') as file:
+        content = file.read()
+    # 使用正则表达式从"orderResult"开始匹配所有的单词
+    words = re.findall(r'\b\w{5,}\b', content[content.index('orderResult'):])
+    # 删除所有的数字、单独的'wb'和单独的'json_best'
+    filtered_words = [re.sub(r'\d|\bwb\b', '', word) for word in words]
+    # 去除空字符串
+    filtered_words = list(filter(None, filtered_words))
+    # 打印识别到的单词（不包含数字、单独的'wb'和单独的'json_best'）
+    
+    with open(savepath, 'w') as file:
+        for word in filtered_words:
+            if spell_checker.check(word) and word != 'json_best' and word != 'begin' and word != 'replace_list' and word != 'taskEstimateTime' and word != 'never':
+                if word != 'orderResult' and word != 'these':
+                    if word[0] != 'u' or len(word) > 5 :
+                        file.write(word + ' ')
 
 def mp32wav(mp3_file, wav_file):
     # 读取MP3文件
@@ -192,24 +198,10 @@ def mp32wav(mp3_file, wav_file):
     audio.export(wav_file, format='wav')
 
 def code2txt(code_file, txt_file):
-    # 设置你的 OpenAI API 密钥
-    openai.api_key = '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'
     with open(code_file, "r", encoding="utf-8") as f:
         content = f.read()
-    # 定义聊天的输入和参数
-    input_messages = [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": f"please describe the content below in English:{content}"}
-    ]
-    # 发送请求
-    print("向chatgpt发送请求")
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=input_messages
-    )
-    reply = response['choices'][0]['message']['content']
     with open(txt_file,"w") as f:
-        f.write(reply)
+        f.write(content)
     print("代码转文本成功")
 
 def tagging(file_path,keywords_num=10):
@@ -250,6 +242,6 @@ if __name__ == "__main__":
     # tagging("1.mp4",keywords_num=10)
 
     # tagging("1.wav",keywords_num=10)
-    tagging("1.mp3",keywords_num=10)
-    # tagging("test.py",keywords_num=100)
+    # tagging("1.mp3",keywords_num=10)
+    # tagging("test.py",keywords_num=10)
     pass
