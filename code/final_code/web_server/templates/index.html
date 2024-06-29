@@ -52,15 +52,15 @@
             background-color: #f2f2f2;
         }
 
-        /*.background-image { 
+        .background-image {
             background-image: url("../static/assets/images/vz1gcIr.png");
-            background-size: cover;*/
-        /* 背景图片尺寸调整 */
-        /* background-repeat: no-repeat; */
-        /* 防止背景图片重复 */
-        /* background-attachment: fixed; */
-        /* 其他样式属性 */
-        /* }  */
+            background-size: cover;
+            /* 背景图片尺寸调整 */
+            background-repeat: no-repeat;
+            /* 防止背景图片重复 */
+            background-attachment: fixed;
+            /* 其他样式属性 */
+        }
 
         .content-container {
             padding-top: 72.57px;
@@ -134,6 +134,13 @@
         .form-container {
             display: flex;
             justify-content: space-between;
+        }
+
+        .custom-item {
+            background-color: white;
+            padding-left: 20px;
+            /* 增加左侧内边距，以便列表标记在背景内 */
+            font-size: 20px;
         }
     </style>
 
@@ -303,13 +310,19 @@
                     <input type="submit" value="Delete" class="btn btn-primary">
                 </form>
             </div>
+            <div class="form-container">
+                <form action="{{ url_for('search', path=path  )}}" method="post" enctype="multipart/form-data">
+                    <input type="text" name="query" id="query_content">
+                    <input type="submit" value="Search" class="btn btn-primary">
+                </form>
+            </div>
         </div>
-        <br>
-        <div class="form-container">
-            <form action="{{ url_for('search', path=path  )}}" method="post" enctype="multipart/form-data">
-                <input type="text" name="query" id="query_content">
-                <input type="submit" value="Search" class="btn btn-primary">
-            </form>
+        <div class="height-100-percent">
+            <ul style="padding-left: 0;">
+                {% for address in file_addresses %}
+                <li class="custom-item">{{ address }}</li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 </body>
