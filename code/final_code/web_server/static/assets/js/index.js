@@ -69,6 +69,7 @@ function check_is_dir() {
 }
 
 const json_name = "../static/test.json"
+const search_result = "../static/test2.json"
 //var id = 1;
 var path = "";
 var full_path = "";
