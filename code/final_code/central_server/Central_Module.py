@@ -39,28 +39,19 @@ def listenning():
             message = b''
             # content_len=0
             while True:
-                # print(len(content))
-                # file.write(content)
                 buffer = conn.recv(4096)
                 message = message + buffer
                 # print('传输中：', message)
                 if len(buffer) < 4096:
                     break
-                # content_len+=len(buffer)
-                # print(content_len)
 
-            # buffer = conn.recv(4096)
             print('收到命令buffer')
             message = message.split(split_char.encode('utf-8'))  # 上传图片时会在转换成utf-8时出错
-            # print('命令是：')
-            # print('message:', message)
 
             if message[0] == b'Upload':  # 上传：Upload,fileid,filename,filepath,content
                 message[0] = message[0].decode('utf-8')
                 message[1] = message[1].decode('utf-8')
-                #print(message[1])
                 message[2] = message[2].decode('utf-8')
-
                 message[3] = message[3].decode('utf-8')
                 content = message[4]
 
@@ -68,18 +59,8 @@ def listenning():
                 print(content)
                 file_name = os.path.join(upload_path + message[3], message[2])
                 with open(os.path.join(file_name), 'wb') as file:
-                    # while True:
-                    #     print(len(content))
-                    #     file.write(content)
-                    #     content = conn.recv(4096)
-                    #     if len(content) < 4096:
-                    #         break
-                    #     print('3')
                     file.write(content)
 
-                # while content:
-                #     content = conn.recv(4096)
-                #     print(content)
                 print('已写入本地')
                 message = message[0:5]
                 message_queue.put(message)
@@ -106,6 +87,16 @@ def listenning():
                 message = message[0:4]
                 message_queue.put(message)
                 print('Delete message 已经入队')
+
+            elif message[0] == b'Search':  # 删除：Delete,file_id,filename 
+            # message = 'Delete' + fileid + filename + filepath
+                message[0] = message[0].decode('utf-8')
+                message[1] = message[1].decode('utf-8')
+                message[2] = message[2].decode('utf-8')
+                message[3] = message[3].decode('utf-8')
+                message = message[0:4]
+                message_queue.put(message)
+                print('Search message 已经入队')
 
             else:
                 print('未定义消息')
@@ -148,6 +139,10 @@ def handle_web_message():
                 if FileDelete(fileid, filename, filepath):
                     print('Delete success')
                 # if remove(message[1],message[2]):
+            elif command == 'Search':
+                query = message[1]
+                if FileSearch(query):
+                    print('Search success')
             else:
                 raise Exception('未定义操作')
 
@@ -234,18 +229,15 @@ def FileDelete(fileid, filename, filepath):
     send_message_to_web('Delete success')
     return True
 
+def FileSearch(query):
+    print("开始查询")
+    content = '11/1.png'+split_char+'22/readme.md'
+    send_message_to_web(content)
+    return True
+
+
 message_queue = queue.Queue()
-# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# Example
-# message_queue.put("Delete,D:\PycharmProjects\\NewDFS\\text.txt,0")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\doc.doc,1")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\md.md,2")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\pdf.pdf,3")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\mp3.mp3,4")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\vedio.mp4,5")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\en.wav,6")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\cat.jpg,7")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\sky.png,8")
+
 if __name__ == "__main__":
     if use_ray:
         ray.init()
