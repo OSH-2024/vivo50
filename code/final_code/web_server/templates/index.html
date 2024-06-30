@@ -317,13 +317,23 @@
                 </form>
             </div>
         </div>
-        <div class="height-100-percent">
+        <div id="search_list"></div>
+        <script>
+            // 在文档加载完成后调用 generate_list 函数
+            $(document).ready(function () {
+                // 通过 $.getJSON 获取 JSON 数据并生成文件列表
+                $.getJSON(search_result, function (data) {
+                    generate_list(data, $('#search_list'));  // 传递要附加文件列表的父元素
+                });
+            });
+        </script>
+        <!-- <div class="height-100-percent">
             <ul style="padding-left: 0;">
                 {% for address in file_addresses %}
                 <li class="custom-item">{{ address }}</li>
                 {% endfor %}
             </ul>
-        </div>
+        </div> -->
     </div>
 </body>
 
