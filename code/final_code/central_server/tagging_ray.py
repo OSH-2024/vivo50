@@ -1,4 +1,6 @@
 import os
+import ray
+import time
 import re
 import cv2
 import sys
@@ -28,7 +30,11 @@ spell_checker = enchant.Dict("en_US")
 download_path=settings["download_path"]
 temp="..\\temp\\"
 
+
+Stime = time.perf_counter()
+
 # os.environ["CUDA_VISIBLE_DEVICES"]="-1"
+@ray.remote
 def txt_tagging(file_path, keywords_num=10):
     keywords_num=int(keywords_num)
     print("     ----Check----keywords_num:" + str(keywords_num))
@@ -46,28 +52,24 @@ def txt_tagging(file_path, keywords_num=10):
     print("     ----Check----tags:"+str(tags))
     return repr(list(tags))
 
+@ray.remote
 def pdf_tagging(file_path, keywords_num=10):
-    pdf2txt(file_path,temp+"pdf2txt.txt")
+    pdf2txt.remote(file_path,"pdf2txt.txt")
     print("格式转换成功")
-    tags=txt_tagging(temp+"pdf2txt.txt",keywords_num)
-    # print("     ----Check----tags:" + str(tags))
-    # return repr(list(tags))
-    return tags
+    return ray.get(txt_tagging.remote("pdf2txt.txt",keywords_num))
 
+@ray.remote
 def md_tagging(file_path, keywords_num=10):
-    md2txt(file_path, temp+"md2txt.txt")
+    md2txt.remote(file_path, "md2txt.txt")
     print("格式转换成功")
-    tags=txt_tagging(temp+"md2txt.txt",keywords_num)
-    # print("     ----Check----tags:" + str(tags))
-    return tags
-
+    return ray.get(txt_tagging.remote("md2txt.txt",keywords_num))
+@ray.remote
 def doc_tagging(file_path, keywords_num=10):
-    doc2txt(file_path, temp+"doc2txt.txt")
+    doc2txt.remote(file_path, "doc2txt.txt")
     print("格式转换成功")
-    tags=txt_tagging(temp+"doc2txt.txt",keywords_num)
-    # print("     ----Check----tags:" + str(tags))
-    return tags
+    return ray.get(txt_tagging.remote("doc2txt.txt",keywords_num))
 
+@ray.remote
 def img_tagging(file_path, keywords_num=10):
     print("     ----Check----keywords_num:"+str(keywords_num))
     return solve(file_path)
@@ -79,16 +81,20 @@ def count_and_sort(lst):
     sorted_items = sorted(counter.items(), key=lambda x: x[1], reverse=True)
     return sorted_items
 
-def mp4_tagging(file_path,keywords_num=10,save_path=temp+'img_save'):
-    img_num=vedio2img(file_path,save_path,keywords_num)
+
+@ray.remote
+def mp4_tagging(file_path,save_path='img_save',keywords_num=10):
+    img_num=ray.get(vedio2img.remote(file_path,save_path,keywords_num))
     tags = []
-    final_tags = []
+    results_refs = []
     for i in range(img_num):
-        results=img_tagging(save_path+"/"+str(i)+".jpg",keywords_num)
-        results=eval(results)
-        # print("     ----Check----results:"+str(results))
-        for result in results:
-            tags.append(result)
+        results_refs.append(img_tagging.remote(save_path + "/" + str(i) + ".jpg", keywords_num))
+    results, _ = ray.wait(results_refs, num_returns=len(results_refs))  # 等待所有子任务完成并获取结果
+    for result in results:
+        result = eval(ray.get(result))
+        for item in result:
+            tags.append(item)
+    final_tags = []
     sorted_tags = count_and_sort(tags)
     for item, count in sorted_tags:
         final_tags.append(item)
@@ -96,42 +102,38 @@ def mp4_tagging(file_path,keywords_num=10,save_path=temp+'img_save'):
     print("     ----Check----tags:" + str(list(final_tags)[0:keywords_num]))
     return repr(list(final_tags)[0:keywords_num])
 
+@ray.remote
 def wav_tagging(file_path,keywords_num=10):
-    speech2txt(file_path,temp+"wav2txt.txt")
-    tags=txt_tagging(temp+"wav2txt.txt",keywords_num)
-    # print("     ----Check----tags:" + str(tags))
-    return tags
+    ray.get(speech2text.remote(file_path,"wav2txt.txt"))
+    return ray.get(txt_tagging.remote("wav2txt.txt",keywords_num))
 
+@ray.remote
 def mp3_tagging(file_path,keywords_num=10):
-    mp32wav(file_path, temp+"mp32wav.wav")
+    mp32wav.remote(file_path, "mp32wav.wav")
     print("格式转换成功")
-    tags=wav_tagging(temp+"mp32wav.wav", keywords_num)
-    # print("     ----Check----tags:" + str(tags))
-    return tags
+    return ray.get(wav_tagging.remote("mp32wav.wav", keywords_num))
 
+@ray.remote
 def code_tagging(file_path,keywords_num=10):
     code2txt(file_path,temp+"code2txt.txt")
     tags = txt_tagging(temp+"code2txt.txt", keywords_num)
     # print("     ----Check----tags:" + str(tags))
     return tags
 
-def pdf2txt(pdf_path,txt_path):
-    with open(pdf_path, 'rb') as pdf_file:
-        doc = slate.PDF(pdf_file)
-        text = ''.join(doc)
-    txt=""
-    for lines in str(text).split("\n"):
-        for word in lines.split(" "):
-            txt=txt+word+" "
-    with open(txt_path,"w",encoding="utf-8") as f:
-        f.write(txt)
+@ray.remote
+def pdf2txt(pdf_path, txt_path):
+    text = extract_text(pdf_path)
+    with open(txt_path, 'w', encoding='utf-8') as txt:
+        txt.write(text)
 
+@ray.remote
 def doc2txt(doc_file, txt_file):
     doc = Document(doc_file)
     with open(txt_file, 'w', encoding='utf-8') as f:
         for paragraph in doc.paragraphs:
             f.write(paragraph.text + '\n')
 
+@ray.remote
 def md2txt(md_path, txt_path):
     # 读取Markdown文件内容
     with open(md_path, 'r', encoding='utf-8') as file:
@@ -144,7 +146,8 @@ def md2txt(md_path, txt_path):
     with open(txt_path, 'w', encoding='utf-8') as file:
         file.write(text)
 
-def vedio2img(file_path,save_path,keywords_num=10):
+@ray.remote
+def vedio2img(file_path,save_path,keywords_num):
     def save_img(img, addr, num):
         naddr = "%s/%d.jpg" % (addr, num)
         ret = cv2.imwrite(naddr, img)
@@ -170,6 +173,7 @@ def vedio2img(file_path,save_path,keywords_num=10):
     videoCapture.release()
     return count
 
+@ray.remote
 def speech2txt(filepath,savepath):
     tmppath = "hahahahaha.txt"
     beginchange(filepath,tmppath)
@@ -191,12 +195,14 @@ def speech2txt(filepath,savepath):
                     if word[0] != 'u' or len(word) > 5 :
                         file.write(word + ' ')
 
+@ray.remote
 def mp32wav(mp3_file, wav_file):
     # 读取MP3文件
     audio = AudioSegment.from_file(mp3_file, format='mp3')
     # 导出为WAV文件
     audio.export(wav_file, format='wav')
 
+@ray.remote
 def code2txt(code_file, txt_file):
     with open(code_file, "r", encoding="utf-8") as f:
         content = f.read()
@@ -228,7 +234,8 @@ def tagging(file_path,keywords_num=10):
     print("     ----Check:ext----:"+str(file_ext))
     print("     ----Check:path----:"+str(file_path))
     tagging_function=tagging_function_table[file_ext]
-    keywords=tagging_function(file_path,keywords_num)
+    ID=tagging_function.remote(file_path)
+    keywords=ray.get(ID)
     print("打标结束:"+str(keywords))
     return keywords
 
@@ -239,9 +246,10 @@ if __name__ == "__main__":
     # tagging("dogs' friend.pdf",keywords_num=10)
     # tagging("dog0.jpg",keywords_num=10)
     # tagging("1.png",keywords_num=10)
-    # tagging("1.mp4",keywords_num=10)
+    tagging("1.mp4",keywords_num=10)
 
     # tagging("1.wav",keywords_num=10)
     # tagging("1.mp3",keywords_num=10)
     # tagging("test.py",keywords_num=10)
+    print(f"Finished in {time.perf_counter()-Stime:.2f}")
     pass
