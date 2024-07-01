@@ -21,13 +21,15 @@
 }
 ```
 
-7、运行 `Central_server` 下的 `Central_Module.py` 和 `web_server` 下的 `web_server.py`。然后在浏览器中输入 `localhost:5000` 这个网址，就可以访问文件系统。
+7、在终端中输入 `export HF_ENDPOINT=https://hf-mirror.com`。
 
-8、启动 `neo4j`，在终端中收入`cd neo4j-community-5.4.0/bin/` ，然后输入 `./neo4j start`。
+8、运行 `Central_server` 下的 `Central_Module.py` 和 `web_server` 下的 `web_server.py`。然后在浏览器中输入 `localhost:5000` 这个网址，就可以访问文件系统。
 
-9、运行 `neo4j_server` 下的 `neo4j_server.py`,在 `http://0.0.0.0:7474/browser/` 下即可查看图数据库中的结点以及边的对应关系。
+9、启动 `neo4j`，在终端中收入`cd neo4j-community-5.4.0/bin/` ，然后输入 `./neo4j start`。
 
-10、清除图数据库的所有节点，需要输入命令 `MATCH (n) DETACH DELETE n`。
+10、运行 `neo4j_server` 下的 `neo4j_server.py`,在 `http://0.0.0.0:7474/browser/` 下即可查看图数据库中的结点以及边的对应关系。
+
+11、清除图数据库的所有节点，需要输入命令 `MATCH (n) DETACH DELETE n`。
 
 ## 实现功能
 
