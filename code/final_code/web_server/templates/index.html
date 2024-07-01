@@ -337,16 +337,17 @@
     </div>
 </body>
 
-</html>
-
-<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.js"></script>
 <script>
     // 在客户端建立与服务器的 Socket.IO 连接
-    var socket = io.connect('http://localhost:5000');
-
+    var socket = io.connect('http://192.168.137.159:5000'); 
     // 监听服务器发送的消息
     socket.on('message', function (msg) {
         // 在接收到消息时触发弹窗提示
         alert('Received message: ' + msg);
+        document.getElementById("p").innerHTML = "确实收到了消息";
     });
 </script>
+
+</html>
+
