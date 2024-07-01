@@ -1,6 +1,8 @@
 import os
 import sys
 import socket
+import json
+import change_json
 
 sys.path.append(os.path.dirname(sys.path[0]))   # 将当前脚本的父目录添加到sys.path列表中。sys.path列表用于确定Python在导入模块时搜索的位置
 import config                               # 导入config模块的内容
@@ -14,6 +16,7 @@ listen_ip = settings["listen_ip"]
 listen_port = settings["web_listen_central"]
 central_ip = settings["central_ip"]
 central_port = settings["web_send_central"]
+json_file2 = settings["json_path2"]
 
 split_char=settings["split_char"].encode("utf-8")   # 将settings["split_char"]按照UTF-8编码转换为字节串，并将结果赋值给split_char变量。
 
@@ -151,6 +154,100 @@ def Delete_to_central(fileid, filename, filepath):
             print('删除失败')
             return False
         return False
+    except OSError as e:
+        print(e)
+        print(type(sock_central))
+        print(type(sock_listen))
+    finally:
+        print(type(sock_central))
+        print(sock_central)
+        print(type(sock_listen))
+        sock_central.close()
+        sock_listen.close()
+
+
+def add_new_file(filepath, filename):
+    parts = filepath.split('/')
+    pathbefore = ""
+    pathnow = ""
+    for i, part in enumerate(parts):
+        pathnow = pathnow + "/" + part
+        change_json.add_dir_to_json(json_file2, pathbefore, part)
+        if i > 0:
+            print(pathbefore)
+            print(part)
+        pathbefore = pathbefore + "/" + part
+        
+    fileid = change_json.get_file_id(json_file2)
+    change_json.add_file_to_json(json_file2, filepath, filename)
+
+
+
+
+def Search_to_central(query):      # 向中央服务器传送查询命令
+    print("search进程pid是" + str(os.getpid()))      # 打印当前进程的pid
+    sock_listen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   # socket.AF_INET(IPv4地址族)和socket.SOCK_STREAM(TCP传输协议)
+    sock_central = socket.socket(socket.AF_INET, socket.SOCK_STREAM)  # sock_central套接字用于与中心服务器进行通信,建立与中心服务器的连接
+    try:
+        sock_central.connect((central_ip, central_port))  # 将 sock_central 套接字连接到指定的远程主机
+        print('已连接到central server')
+        message = b'' + b'Search' + split_char + str(query).encode(
+            'utf-8') + split_char + b'none' + split_char + b'none'
+        sock_central.sendall(message)
+        print('已发送查询命令')
+        # sock_central.close()
+        sock_listen.bind((listen_ip, listen_port))
+        sock_listen.listen(5)
+        print('等待central server连接')
+
+        conn, addr = sock_listen.accept()
+        print('已连接到central server')
+
+        content = b''
+
+        while True:
+            buffer = conn.recv(4096)
+            content = b'' + content + buffer
+            if len(buffer) < 4096:
+                break
+
+        if content == b'search error':
+            print('下载失败')
+            return False
+        print('已接收到central server的回复')
+
+        data = {
+            "id": 1,
+            "name": "/",
+            "isdir": True,
+            "children": []
+        }
+
+        # 清空文件内容
+        with open(json_file2, "w") as file:
+            file.write("")
+
+        # 写入新的 JSON 数据
+        with open(json_file2, "w") as file:
+            json.dump(data, file, indent=4)
+        #to be done
+        
+        print('成功得到搜索结果')
+
+
+        parts = content.split(split_char) 
+
+        for part in parts:
+            str_part = part.decode('utf-8')
+            split_index = str_part.rfind('/') 
+            if split_index != -1:
+                part1 = str_part[:split_index]  # 切割第一部分
+                part2 = str_part[split_index + 1:]  # 切割第二部分
+                add_new_file(part1,part2)
+            else:
+                print("Split character not found in the string.")
+        return True
+
     except OSError as e:
         print(e)
         print(type(sock_central))

@@ -5,6 +5,9 @@ import queue
 import socket
 from threading import Thread
 from Ray_Module import ray_control
+from FileSearch import FileSearch
+from tag_server import index_upload
+
 
 sys.path.append(os.path.dirname(sys.path[0]))
 import config
@@ -39,28 +42,19 @@ def listenning():
             message = b''
             # content_len=0
             while True:
-                # print(len(content))
-                # file.write(content)
                 buffer = conn.recv(4096)
                 message = message + buffer
                 # print('传输中：', message)
                 if len(buffer) < 4096:
                     break
-                # content_len+=len(buffer)
-                # print(content_len)
 
-            # buffer = conn.recv(4096)
             print('收到命令buffer')
             message = message.split(split_char.encode('utf-8'))  # 上传图片时会在转换成utf-8时出错
-            # print('命令是：')
-            # print('message:', message)
 
             if message[0] == b'Upload':  # 上传：Upload,fileid,filename,filepath,content
                 message[0] = message[0].decode('utf-8')
                 message[1] = message[1].decode('utf-8')
-                #print(message[1])
                 message[2] = message[2].decode('utf-8')
-
                 message[3] = message[3].decode('utf-8')
                 content = message[4]
 
@@ -68,18 +62,8 @@ def listenning():
                 print(content)
                 file_name = os.path.join(upload_path + message[3], message[2])
                 with open(os.path.join(file_name), 'wb') as file:
-                    # while True:
-                    #     print(len(content))
-                    #     file.write(content)
-                    #     content = conn.recv(4096)
-                    #     if len(content) < 4096:
-                    #         break
-                    #     print('3')
                     file.write(content)
 
-                # while content:
-                #     content = conn.recv(4096)
-                #     print(content)
                 print('已写入本地')
                 message = message[0:5]
                 message_queue.put(message)
@@ -106,6 +90,16 @@ def listenning():
                 message = message[0:4]
                 message_queue.put(message)
                 print('Delete message 已经入队')
+
+            elif message[0] == b'Search':  # 删除：Delete,file_id,filename 
+            # message = 'Delete' + fileid + filename + filepath
+                message[0] = message[0].decode('utf-8')
+                message[1] = message[1].decode('utf-8')
+                message[2] = message[2].decode('utf-8')
+                message[3] = message[3].decode('utf-8')
+                message = message[0:4]
+                message_queue.put(message)
+                print('Search message 已经入队')
 
             else:
                 print('未定义消息')
@@ -148,6 +142,10 @@ def handle_web_message():
                 if FileDelete(fileid, filename, filepath):
                     print('Delete success')
                 # if remove(message[1],message[2]):
+            elif command == 'Search':
+                query = message[1]
+                if FileSearch(query):
+                    print('Search success')
             else:
                 raise Exception('未定义操作')
 
@@ -179,6 +177,13 @@ def FileUpload(fileid, filename, filepath, filecontent):  # filepath 要上传�
         print('ray commit error')
         return False
     print("写入Ray模块成功")
+
+    if index_upload(fileid, filename, tmpfile_path) is False :
+        print('生成向量化索引错误')
+        return False
+    print("生成向量化索引成功")
+
+
     print("开始写入JuiceFS")
  #   print('-----------------------------')
  #   print()
@@ -224,6 +229,14 @@ def FileDelete(fileid, filename, filepath):
         print('ray commit error')
         return False
     print("Ray模块删除成功")
+
+    if index_delete(fileid, filename, tmpfile_path) is False :
+        print('删除向量化索引错误')
+        return False
+    print("删除向量化索引成功")
+
+
+
     print("开始在JuiceFS中删除文件")
     os.remove(delete_path)
     os.remove(tmpfile_path)
@@ -234,18 +247,18 @@ def FileDelete(fileid, filename, filepath):
     send_message_to_web('Delete success')
     return True
 
+def FileSearch(query):
+    print("开始查询")
+    # content = '11/1.png'+split_char+'22/readme.md'
+    content = FileSearch(query)
+    print("查询得到的内容是：")
+    print(content)
+    send_message_to_web(content)
+    return True
+
+
 message_queue = queue.Queue()
-# sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# Example
-# message_queue.put("Delete,D:\PycharmProjects\\NewDFS\\text.txt,0")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\doc.doc,1")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\md.md,2")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\pdf.pdf,3")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\mp3.mp3,4")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\vedio.mp4,5")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\en.wav,6")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\cat.jpg,7")
-# message_queue.put("Upload,D:\PycharmProjects\\NewDFS\\sky.png,8")
+
 if __name__ == "__main__":
     if use_ray:
         ray.init()

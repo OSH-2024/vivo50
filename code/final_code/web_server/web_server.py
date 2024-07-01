@@ -156,10 +156,13 @@ def search():
         if query=='':
             print('问题不能为空')
             return redirect(url_for('index'))
+        print('查询的问题是：')
         print(query)
-        message_forward('search success')
-        l = ["abc", "123", "efg"]
-    return render_template('index.html', file_addresses = l)#渲染网页
+        if connect_to_central.Search_to_central(query) :
+            message_forward('search success')
+        else :
+            message_forward('search fail')
+    return render_template('index.html')#渲染网页
 
 
 @socketio.on('message')

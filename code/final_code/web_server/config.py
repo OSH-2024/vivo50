@@ -4,6 +4,7 @@ class args():
             # general
             "download_path":"/home/liuchang/dfile",
             "json_path":"/home/liuchang/testfs/web_server/static/test.json",
+            "json_path2":"/home/liuchang/testfs/web_server/static/test2.json",
             "upload_path":"/home/liuchang/upfile",
             "storage_path":"/jfs",
             "split_char":"%$$%@#!#(*%^&%",

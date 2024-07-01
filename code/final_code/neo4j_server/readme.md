@@ -2,7 +2,7 @@
 
 ### 一、安装 jdk17
 
-- `neo4j` 需要相应的 `java` 版本与其进行适配，我选用的 `neo4j` 版本是 [neo4j-community-5.4.0](https://rec.ustc.edu.cn/share/c89cf710-33c3-11ef-9e8b-0144f6057c36) ，与其对应的 `java` 版本是 [jdk-17](https://rec.ustc.edu.cn/share/1e5ba680-33c4-11ef-9ce8-7b17a40f075d)
+- `neo4j` 需要相应的 `java` 版本与其进行适配，我选用的 `neo4j` 版本是 [neo4j-community-5.20.0-unix](https://rec.ustc.edu.cn/share/ec226650-3795-11ef-892a-89965a81e759) ，与其对应的 `java` 版本是 [jdk-17](https://rec.ustc.edu.cn/share/1e5ba680-33c4-11ef-9ce8-7b17a40f075d)
 
 - 首先卸载服务器上原本可能存在的 `openjdk`
 
@@ -37,13 +37,13 @@
 
 ### 二、安装  neo4j
 
-- 找到压缩包` neo4j-community-5.4.0-unix.tar.gz`
+- 找到压缩包` neo4j-community-5.20.0-unix.tar.gz`
 
 - 解压缩
 
- `tar -xvf neo4j-community-5.4.0-unix.tar.gz`
+ `tar -xvf neo4j-community-5.20.0-unix.tar.gz`
 
-- s找到解压缩后的文件夹修改配置文件，该配置文件是在 `/neo4j-community-5.4.0/conf` 中的 `neo4j.conf`
+- s找到解压缩后的文件夹修改配置文件，该配置文件是在 `/neo4j-community-5.20.0/conf` 中的 `neo4j.conf`
 
 `sudo vim neo4j.conf`
 
@@ -51,7 +51,7 @@
 
 - 启动服务（同样道理./neo4j stop停止服务）
 
-`cd neo4j-community-5.4.0/bin/`
+`cd neo4j-community-5.20.0/bin/`
 
 `./neo4j start`
 
