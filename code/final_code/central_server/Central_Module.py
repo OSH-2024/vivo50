@@ -5,6 +5,9 @@ import queue
 import socket
 from threading import Thread
 from Ray_Module import ray_control
+from FileSearch import FileSearch
+from tag_server import index_upload
+
 
 sys.path.append(os.path.dirname(sys.path[0]))
 import config
@@ -174,6 +177,13 @@ def FileUpload(fileid, filename, filepath, filecontent):  # filepath 要上传�
         print('ray commit error')
         return False
     print("写入Ray模块成功")
+
+    if index_upload(fileid, filename, tmpfile_path) is False :
+        print('生成向量化索引错误')
+        return False
+    print("生成向量化索引成功")
+
+
     print("开始写入JuiceFS")
  #   print('-----------------------------')
  #   print()
@@ -219,6 +229,14 @@ def FileDelete(fileid, filename, filepath):
         print('ray commit error')
         return False
     print("Ray模块删除成功")
+
+    if index_delete(fileid, filename, tmpfile_path) is False :
+        print('删除向量化索引错误')
+        return False
+    print("删除向量化索引成功")
+
+
+
     print("开始在JuiceFS中删除文件")
     os.remove(delete_path)
     os.remove(tmpfile_path)
@@ -231,7 +249,10 @@ def FileDelete(fileid, filename, filepath):
 
 def FileSearch(query):
     print("开始查询")
-    content = '11/1.png'+split_char+'22/readme.md'
+    # content = '11/1.png'+split_char+'22/readme.md'
+    content = FileSearch(query)
+    print("查询得到的内容是：")
+    print(content)
     send_message_to_web(content)
     return True
 

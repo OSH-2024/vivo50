@@ -5,7 +5,7 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import StorageContext
 from llama_index.core import ServiceContext, StorageContext, Settings
 username = "neo4j"
-password = "oshvivo50"
+password = "vivo5000"
 url = "neo4j://localhost"
 embed_dim = 1536
 Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-large-zh-v1.5")

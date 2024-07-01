@@ -1,12 +1,13 @@
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.vector_stores.neo4jvector import Neo4jVectorStore
 username = "neo4j"
-password = "oshvivo50"
+password = "vivo5000"
 url = "neo4j://localhost"
 embed_dim = 1536
 
 import config
 setting=config.args()
+settings=setting.set     
 split_char=settings["split_char"]
 
 def FileSearch(query):
