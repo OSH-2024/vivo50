@@ -5,7 +5,7 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import StorageContext
 from llama_index.core import ServiceContext, StorageContext, Settings
 username = "neo4j"
-password = "vivo5000"
+password = "oshvivo50"
 url = "neo4j://localhost"
 embed_dim = 1536
 Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-large-zh-v1.5")
@@ -37,10 +37,13 @@ def index_upload(fileid, filename, tmpfile_path):
         # print(query)
         # 执行query语句，从而设置了 FileID，FilePath， FileName
         res = neo4j_vector.database_query(query)
+        print("建立向量化索引节点成功")
         return True
         # print(len(res[0].get('n').get('embedding')))
     except Exception as e :
+        print("Error:", str(e))
         return False
 
 if __name__ == "__main__":
-    vector_embed('1',".download.json", "/mnt/workspace/.download.json")
+    index_upload('1',"1.png","/home/liuchang/upfile/1.png")
+    # vector_embed('1',".download.json", "/mnt/workspace/.download.json")

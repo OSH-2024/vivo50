@@ -17,6 +17,7 @@ listen_port = settings["web_listen_central"]
 central_ip = settings["central_ip"]
 central_port = settings["web_send_central"]
 json_file2 = settings["json_path2"]
+upload_path = settings["upload_path"]
 
 split_char=settings["split_char"].encode("utf-8")   # 将settings["split_char"]按照UTF-8编码转换为字节串，并将结果赋值给split_char变量。
 
@@ -212,7 +213,7 @@ def Search_to_central(query):      # 向中央服务器传送查询命令
                 break
 
         if content == b'search error':
-            print('下载失败')
+            print('搜索失败')
             return False
         print('已接收到central server的回复')
 
@@ -239,13 +240,16 @@ def Search_to_central(query):      # 向中央服务器传送查询命令
 
         for part in parts:
             str_part = part.decode('utf-8')
+            str_part = str_part[len(upload_path)+1:]
+            print("搜索结果为：")
+            print(str_part)
             split_index = str_part.rfind('/') 
             if split_index != -1:
                 part1 = str_part[:split_index]  # 切割第一部分
                 part2 = str_part[split_index + 1:]  # 切割第二部分
                 add_new_file(part1,part2)
             else:
-                print("Split character not found in the string.")
+                change_json.add_file_to_json(json_file2, '', str_part)
         return True
 
     except OSError as e:

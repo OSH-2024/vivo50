@@ -45,7 +45,7 @@ def neo_driver():
     uri = "bolt://localhost:7687"
     # 身份验证信息
     user = "neo4j"
-    password = "vivo5000"
+    password = "oshvivo50"
     # 创建Neo4j数据库驱动
     graph= Graph(uri, auth=(user, password))
     return graph
@@ -98,15 +98,16 @@ if __name__ == "__main__":
                     print("     ----Check----tags_num:" + str(len(tags)))
                     print("     ----Check----tags:"+str(tags))
                     # 创建结点
+                    '''
                     file_node = Node("File",name=filename,fileid=fileid) 
                     graph.create(file_node)                                 #创建文件代表的节点
-
                     '''
-                    这里是要改成按照fileid查询的
+                    # 这里是要改成按照fileid查询的
                     query = "MATCH (n:Chunk{file_name: \""+ filename+ "\", file_path:\"" + filepath+"\" }) SET n:File SET n.file_ID ="+ fileid + " RETURN n"
                     # print(query)
-                    file_node = graph.run(query)
-                    '''
+                    sub_graph = graph.run(query).to_subgraph()
+                    file_nodes = sub_graph.nodes
+                    file_node = list(file_nodes)[0]
                     for tag in tags:
                         matcher = NodeMatcher(graph)    
                         result = matcher.match("Tag").where("_.name=" + "'" + tag + "'").first()
@@ -119,13 +120,17 @@ if __name__ == "__main__":
                             graph.create(tag_node)
                         tmp_rela = Relationship(tag_node, 'IS_TAG', file_node)
                         graph.create(tmp_rela)
+                    print("成功在图数据库中建边")
                 if cache_command == "Delete":
                     print("尝试删除")
                     try:
                         print("     ----Check----fileid:"+str(fileid))
-                        matcher = NodeMatcher(graph)
-                        result = matcher.match("File").where("_.fileid=" + "'" + fileid + "'").first()
-                        graph.delete(result)
+                        query = "MATCH (n:Chunk{file_name: \""+ filename+ "\", file_path:\"" + filepath+"\" }) SET n:File SET n.file_ID ="+ fileid + " RETURN n"
+                        # print(query)
+                        sub_graph = graph.run(query).to_subgraph()
+                        file_nodes = sub_graph.nodes
+                        file_node = list(file_nodes)[0]
+                        graph.delete(file_node)
                         print("节点删除成功")
                     except Exception as e:
                         print("节点删除失败:", e)
