@@ -1,14 +1,19 @@
 import neo4j
 from llama_index.vector_stores.neo4jvector import Neo4jVectorStore
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+# from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core import StorageContext
 from llama_index.core import ServiceContext, StorageContext, Settings
+
+from llama_index.embeddings.nomic import NomicEmbedding
 username = "neo4j"
 password = "oshvivo50"
 url = "neo4j://localhost"
-embed_dim = 1536
-Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-large-zh-v1.5")
+embed_dim = 768
+api_key = "nk-Fd--NtdLRVionYfsi4CS35FafKT_ddYP1I5OU1rOzk4"
+import os
+os.environ["NOMIC_API_KEY"]="nk-Fd--NtdLRVionYfsi4CS35FafKT_ddYP1I5OU1rOzk4"
+# Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-large-zh-v1.5")
 
 import config
 setting=config.args()
@@ -21,8 +26,9 @@ def index_upload(fileid, filename, tmpfile_path):
         neo4j_vector = Neo4jVectorStore(username, password, url, embed_dim)
         documents = SimpleDirectoryReader(input_files= [tmpfile_path]).load_data()
         storage_context = StorageContext.from_defaults(vector_store=neo4j_vector)
+        embedding_model = NomicEmbedding(model_name="nomic-embed-text-v1.5",vision_model_name="nomic-embed-vision-v1.5", api_key=api_key)
         index = VectorStoreIndex.from_documents(
-                documents, storage_context=storage_context)
+                documents, storage_context=storage_context, embed_model= embedding_model)
 
         # 获取在juicefs中的存储路径
         filepath = tmpfile_path.split(upload_path)[1]
@@ -37,13 +43,18 @@ def index_upload(fileid, filename, tmpfile_path):
         # print(query)
         # 执行query语句，从而设置了 FileID，FilePath， FileName
         res = neo4j_vector.database_query(query)
-        print("建立向量化索引节点成功")
+        
         return True
         # print(len(res[0].get('n').get('embedding')))
     except Exception as e :
-        print("Error:", str(e))
         return False
 
-if __name__ == "__main__":
-    index_upload('1',"1.png","/home/liuchang/upfile/1.png")
-    # vector_embed('1',".download.json", "/mnt/workspace/.download.json")
+# if __name__ == "__main__":
+#     vector_embed('1',".download.json", "/mnt/workspace/.download.json")
+# query1 = "sunny weather"
+# query2 = "Files about weather"
+# embedding_model = NomicEmbedding(model_name="nomic-embed-text-v1.5",vision_model_name="nomic-embed-vision-v1.5", api_key=api_key)
+# em1 = embedding_model.get_query_embedding(query1)
+# em2 = embedding_model.get_query_embedding(query2)
+# res = embedding_model.similarity(em1,em2)
+# print(res)
