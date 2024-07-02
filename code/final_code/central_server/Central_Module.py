@@ -232,12 +232,7 @@ def FileDelete(fileid, filename, filepath):
         return False
     print("Ray模块删除成功")
 
-    if index_delete(fileid, filename, tmpfile_path) is False :
-        print('删除向量化索引错误')
-        return False
     print("删除向量化索引成功")
-
-
 
     print("开始在JuiceFS中删除文件")
     os.remove(delete_path)
