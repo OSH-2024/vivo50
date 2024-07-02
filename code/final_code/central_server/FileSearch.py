@@ -27,20 +27,22 @@ def IndexSearch(query):
     vector_list = []
     for vector in stored_vector:
         vector_list.append(vector.get('n').get('embedding'))
-    
+    print(len(vector_list))
     similarity_res = []
     print("计算余弦相似度")
     # 计算余弦相似度
     for vector in vector_list:
-        similarity = embeddings.similarity(vector, query_vector[0])
+        similarity = embedding_model.similarity(vector, query_vector)
+        print(similarity)
         similarity_res.append(similarity)
     print("获取相似度最大的几个文件")
     # 获取相似度最大的几个文件
     # 降序排列
+    # print(similarity_res)
     sorted_res = sorted(similarity_res, reverse= True)
     # 判断相关性
     # 初步判断余弦相似度相差在0.03以内进行推荐
-    print("找对应的index")
+    # print("找对应的index")
     difference = 0.03
     # 找对应的index
     retrieve_index = []
@@ -67,9 +69,8 @@ def IndexSearch(query):
     return retrieve_files
 
 if __name__ == "__main__":
-    filepath = IndexSearch("请找出含有猫的图片")
+    filepath = IndexSearch("一只英国短毛猫，蓝色背景，坐着，看向你")
     #print(filepath)
-
 
 
 

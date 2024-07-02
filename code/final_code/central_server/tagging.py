@@ -6,6 +6,7 @@ import torch
 import openai
 import markdown
 import enchant
+import json
 import slate3k as slate
 import speech_recognition as sr
 from docx import Document
@@ -174,22 +175,19 @@ def speech2txt(filepath,savepath):
     tmppath = "hahahahaha.txt"
     beginchange(filepath,tmppath)
     # 打开文件并读取内容
-    with open(tmppath, 'r') as file:
-        content = file.read()
-    # 使用正则表达式从"orderResult"开始匹配所有的单词
-    words = re.findall(r'\b\w{5,}\b', content[content.index('orderResult'):])
-    # 删除所有的数字、单独的'wb'和单独的'json_best'
-    filtered_words = [re.sub(r'\d|\bwb\b', '', word) for word in words]
-    # 去除空字符串
-    filtered_words = list(filter(None, filtered_words))
-    # 打印识别到的单词（不包含数字、单独的'wb'和单独的'json_best'）
-    
+    res = ""
+    with open(tmppath, "r") as f:
+        orderResult = json.load(f)["content"]["orderResult"]
+        lattice = json.loads(orderResult)["lattice"]
+        json_1bests = [json.loads(item["json_1best"]) for item in lattice]
+        #print(json_1bests)
+    for s in json_1bests: # sentence (?)
+        for w in s['st']['rt'][0]['ws']: # word
+            res += w['cw'][0]['w']
+            if w['cw'][0]['wp'] == 'g':
+                res += '\n'
     with open(savepath, 'w') as file:
-        for word in filtered_words:
-            if spell_checker.check(word) and word != 'json_best' and word != 'begin' and word != 'replace_list' and word != 'taskEstimateTime' and word != 'never':
-                if word != 'orderResult' and word != 'these':
-                    if word[0] != 'u' or len(word) > 5 :
-                        file.write(word + ' ')
+        file.write(res)
 
 def mp32wav(mp3_file, wav_file):
     # 读取MP3文件
@@ -241,7 +239,7 @@ if __name__ == "__main__":
     # tagging("1.png",keywords_num=10)
     # tagging("1.mp4",keywords_num=10)
 
-    # tagging("1.wav",keywords_num=10)
+    tagging("1.wav",keywords_num=10)
     # tagging("1.mp3",keywords_num=10)
     # tagging("test.py",keywords_num=10)
     pass
