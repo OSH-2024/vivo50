@@ -5,19 +5,23 @@ password = "oshvivo50"
 url = "neo4j://localhost"
 embed_dim = 1536
 
+from llama_index.embeddings.nomic import NomicEmbedding
+api_key = "nk-Fd--NtdLRVionYfsi4CS35FafKT_ddYP1I5OU1rOzk4"
+import os
+os.environ["NOMIC_API_KEY"]="nk-Fd--NtdLRVionYfsi4CS35FafKT_ddYP1I5OU1rOzk4"
 import config
 setting=config.args()
 settings=setting.set     
 split_char=settings["split_char"]
-
+embedding_model = NomicEmbedding(model_name="nomic-embed-text-v1.5",vision_model_name="nomic-embed-vision-v1.5", api_key="nk-Fd--NtdLRVionYfsi4CS35FafKT_ddYP1I5OU1rOzk4")
 def IndexSearch(query):
     #
     neo4j_vector = Neo4jVectorStore(username, password, url, embed_dim)
     print("获取所有的文件节点")
     # 获取所有的文件节点
     stored_vector = neo4j_vector.database_query("MATCH (n:File) RETURN n")
-    embeddings = HuggingFaceEmbedding(model_name="BAAI/bge-large-zh-v1.5", truncate_dim=1024)
-    query_vector = embeddings._embed([query])
+    # embeddings = HuggingFaceEmbedding(model_name="BAAI/bge-large-zh-v1.5", truncate_dim=1024)
+    query_vector = embedding_model.get_query_embedding(query)
     print("获取所有的vector")
     # 获取所有的vector
     vector_list = []
