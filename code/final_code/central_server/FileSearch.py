@@ -20,8 +20,21 @@ def IndexSearch(query):
     print("获取所有的文件节点")
     # 获取所有的文件节点
     stored_vector = neo4j_vector.database_query("MATCH (n:File) RETURN n")
+    tag_vector = neo4j_vector.database_query("MATCH(n:Tag) return n")
     # embeddings = HuggingFaceEmbedding(model_name="BAAI/bge-large-zh-v1.5", truncate_dim=1024)
     query_vector = embedding_model.get_query_embedding(query)
+    tag_similarity = []
+    for tag in tag_vector:
+        embedding = tag.get('n').get('embedding')
+        similarity = embedding_model.similarity(embedding,query_vector)
+        tag_similarity.append(similarity)
+        print(tag_vector[index].get('n').get('name'))
+        print(similarity)
+    
+    # tag_res = sorted(tag_similarity)
+    # for res in tag_res:
+    #     index = tag_similarity.index(res)
+        print(tag_vector[index].get('n').get('name'))
     print("获取所有的vector")
     # 获取所有的vector
     vector_list = []

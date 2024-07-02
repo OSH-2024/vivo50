@@ -10,6 +10,11 @@ import config
 setting=config.args()
 settings=setting.set
 
+from llama_index.embeddings.nomic import NomicEmbedding
+api_key = "nk-Fd--NtdLRVionYfsi4CS35FafKT_ddYP1I5OU1rOzk4"
+import os
+os.environ["NOMIC_API_KEY"]="nk-Fd--NtdLRVionYfsi4CS35FafKT_ddYP1I5OU1rOzk4"
+embedding_model = NomicEmbedding(model_name="nomic-embed-text-v1.5",vision_model_name="nomic-embed-vision-v1.5", api_key=api_key)
 listen_ip=settings["listen_ip"]
 listen_port=settings["neo_listen_Ray"]
 ray_ip=settings["central_ip"]
@@ -116,7 +121,8 @@ if __name__ == "__main__":
                         if result:
                             tag_node = result
                         else :
-                            tag_node = Node("Tag",name=tag)
+                            embedding = embedding_model.get_text_embedding(tag)
+                            tag_node = Node("Tag",name=tag, embedding=embedding)
                             graph.create(tag_node)
                         tmp_rela = Relationship(tag_node, 'IS_TAG', file_node)
                         graph.create(tmp_rela)
