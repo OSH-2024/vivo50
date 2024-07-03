@@ -249,10 +249,10 @@ def Search_to_central(query):      # 向中央服务器传送查询命令
                 part1 = str_part[:split_index]  # 切割第一部分
                 part2 = str_part[split_index + 1:]  # 切割第二部分
                 add_new_file(part1,part2)
-                change_path_id(json_file,json_file2,part1,part2)
+                change_json.change_path_id(json_file,json_file2,part1,part2)
             else:
                 change_json.add_file_to_json(json_file2, '', str_part)
-                change_path_id(json_file,json_file2,'', str_part)
+                change_json.change_path_id(json_file,json_file2,'', str_part)
         return True
 
     except OSError as e:

@@ -22,6 +22,7 @@ from collections import Counter
 sys.path.append(os.path.dirname(sys.path[0]))
 import config
 from imgtagging import solve
+from txttagging import text_tag
 from speech2txt import beginchange
 setting=config.args()
 settings=setting.set
@@ -33,19 +34,7 @@ temp="..\\temp\\"
 def txt_tagging(file_path, keywords_num=10):
     keywords_num=int(keywords_num)
     print("     ----Check----keywords_num:" + str(keywords_num))
-    #torch.cuda.is_available = lambda: False
-    #model_name = 'all-MiniLM-L6-v2'
-    #model_path = util.download_model(model_name)
-    # kw_model = KeyBERT(model='distilbert-base-nli-mean-tokens')
-    # kw_model = KeyBERT(model='paraphrase-MiniLM-L6-v2')
-    #kw_model = KeyBERT()
-    with open(file_path, "r",encoding="utf-8") as f:
-        text = f.read()
-    # print("     ----Check----text:"+str(text))
-    tags = jieba.analyse.extract_tags(text, keywords_num)
-    #tags = kw_model.extract_keywords(text, keyphrase_ngram_range=(1, 1), top_n=keywords_num)
-    print("     ----Check----tags:"+str(tags))
-    return repr(list(tags))
+    return text_tag(file_path,keywords_num)
 
 def pdf_tagging(file_path, keywords_num=10):
     pdf2txt(file_path,temp+"pdf2txt.txt")
@@ -243,3 +232,4 @@ if __name__ == "__main__":
     # tagging("1.mp3",keywords_num=10)
     # tagging("test.py",keywords_num=10)
     pass
+
