@@ -28,7 +28,6 @@ setting=config.args()
 settings=setting.set
 spell_checker = enchant.Dict("en_US")
 download_path=settings["download_path"]
-temp="..\\temp\\"
 
 # os.environ["CUDA_VISIBLE_DEVICES"]="-1"
 def txt_tagging(file_path, keywords_num=10):
@@ -37,24 +36,24 @@ def txt_tagging(file_path, keywords_num=10):
     return text_tag(file_path,keywords_num)
 
 def pdf_tagging(file_path, keywords_num=10):
-    pdf2txt(file_path,temp+"pdf2txt.txt")
+    pdf2txt(file_path,"pdf2txt.txt")
     print("格式转换成功")
-    tags=txt_tagging(temp+"pdf2txt.txt",keywords_num)
+    tags=txt_tagging("pdf2txt.txt",keywords_num)
     # print("     ----Check----tags:" + str(tags))
     # return repr(list(tags))
     return tags
 
 def md_tagging(file_path, keywords_num=10):
-    md2txt(file_path, temp+"md2txt.txt")
+    md2txt(file_path, "md2txt.txt")
     print("格式转换成功")
-    tags=txt_tagging(temp+"md2txt.txt",keywords_num)
+    tags=txt_tagging("md2txt.txt",keywords_num)
     # print("     ----Check----tags:" + str(tags))
     return tags
 
 def doc_tagging(file_path, keywords_num=10):
-    doc2txt(file_path, temp+"doc2txt.txt")
+    doc2txt(file_path, "doc2txt.txt")
     print("格式转换成功")
-    tags=txt_tagging(temp+"doc2txt.txt",keywords_num)
+    tags=txt_tagging("doc2txt.txt",keywords_num)
     # print("     ----Check----tags:" + str(tags))
     return tags
 
@@ -69,7 +68,7 @@ def count_and_sort(lst):
     sorted_items = sorted(counter.items(), key=lambda x: x[1], reverse=True)
     return sorted_items
 
-def mp4_tagging(file_path,keywords_num=10,save_path=temp+'img_save'):
+def mp4_tagging(file_path,keywords_num=10,save_path='img_save'):
     img_num=vedio2img(file_path,save_path,keywords_num)
     tags = []
     final_tags = []
@@ -87,21 +86,21 @@ def mp4_tagging(file_path,keywords_num=10,save_path=temp+'img_save'):
     return repr(list(final_tags)[0:keywords_num])
 
 def wav_tagging(file_path,keywords_num=10):
-    speech2txt(file_path,temp+"wav2txt.txt")
-    tags=txt_tagging(temp+"wav2txt.txt",keywords_num)
+    speech2txt(file_path,"wav2txt.txt")
+    tags=txt_tagging("wav2txt.txt",keywords_num)
     # print("     ----Check----tags:" + str(tags))
     return tags
 
 def mp3_tagging(file_path,keywords_num=10):
-    mp32wav(file_path, temp+"mp32wav.wav")
+    mp32wav(file_path, "mp32wav.wav")
     print("格式转换成功")
-    tags=wav_tagging(temp+"mp32wav.wav", keywords_num)
+    tags=wav_tagging("mp32wav.wav", keywords_num)
     # print("     ----Check----tags:" + str(tags))
     return tags
 
 def code_tagging(file_path,keywords_num=10):
-    code2txt(file_path,temp+"code2txt.txt")
-    tags = txt_tagging(temp+"code2txt.txt", keywords_num)
+    code2txt(file_path,"code2txt.txt")
+    tags = txt_tagging("code2txt.txt", keywords_num)
     # print("     ----Check----tags:" + str(tags))
     return tags
 

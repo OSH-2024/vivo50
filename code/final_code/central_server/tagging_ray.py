@@ -28,7 +28,6 @@ setting=config.args()
 settings=setting.set
 spell_checker = enchant.Dict("en_US")
 download_path=settings["download_path"]
-temp="..\\temp\\"
 
 
 Stime = time.perf_counter()
@@ -103,8 +102,8 @@ def mp3_tagging(file_path,keywords_num=10):
 
 @ray.remote
 def code_tagging(file_path,keywords_num=10):
-    code2txt(file_path,temp+"code2txt.txt")
-    tags = txt_tagging(temp+"code2txt.txt", keywords_num)
+    code2txt(file_path,"code2txt.txt")
+    tags = txt_tagging("code2txt.txt", keywords_num)
     # print("     ----Check----tags:" + str(tags))
     return tags
 

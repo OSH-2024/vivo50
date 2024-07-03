@@ -166,7 +166,7 @@ def send_message_to_web(message):
 
 def FileUpload(fileid, filename, filepath, filecontent):  # filepath 要上传的文件存储在中央服务器的地址
     print("开始上传")
-    file_name = os.path.join(storage_path+filepath,filename)  # 这个是正式存入juicefs的path
+    file_name = os.path.join(storage_path + filepath,filename)  # 这个是正式存入juicefs的path
     tmpfile_path = os.path.join(upload_path + filepath,filename)  # 这个是上传文件的缓冲区路径
     if ray_control('Upload' + split_char + fileid + split_char + filename + split_char + tmpfile_path) is False:
         print('Ray模块标签存入缓冲区错误')

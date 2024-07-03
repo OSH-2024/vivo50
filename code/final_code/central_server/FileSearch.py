@@ -75,9 +75,9 @@ def IndexSearch(query):
     for i in range(len(retrieve_index)):
         # 获取结点文件路径
         if i == 0:
-            retrieve_files = stored_vector[retrieve_index[0]].get('n').get('file_path')
+            retrieve_files = stored_vector[retrieve_index[0]].get('n').get('FilePath')
         else:
-            path = stored_vector[retrieve_index[i]].get('n').get('file_path')
+            path = stored_vector[retrieve_index[i]].get('n').get('FilePath')
             retrieve_files = retrieve_files + split_char + path
     return retrieve_files
 

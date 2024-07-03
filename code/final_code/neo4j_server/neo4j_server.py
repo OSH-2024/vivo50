@@ -108,7 +108,7 @@ if __name__ == "__main__":
                     graph.create(file_node)                                 #创建文件代表的节点
                     '''
                     # 这里是要改成按照fileid查询的
-                    query = "MATCH (n:Chunk{file_name: \""+ filename+ "\", file_path:\"" + filepath+"\" }) SET n:File SET n.file_ID ="+ fileid + " RETURN n"
+                    query = "MATCH (n:Chunk{FileID: \""+ fileid+ "\"}) return n"
                     # print(query)
                     sub_graph = graph.run(query).to_subgraph()
                     file_nodes = sub_graph.nodes
@@ -131,7 +131,7 @@ if __name__ == "__main__":
                     print("尝试删除")
                     try:
                         print("     ----Check----fileid:"+str(fileid))
-                        query = "MATCH (n:Chunk{file_name: \""+ filename+ "\", file_path:\"" + filepath+"\" }) SET n:File SET n.file_ID ="+ fileid + " RETURN n"
+                        query = "MATCH (n:Chunk{FileID: \""+ fileid+ "\"}) return n"
                         # print(query)
                         sub_graph = graph.run(query).to_subgraph()
                         file_nodes = sub_graph.nodes
