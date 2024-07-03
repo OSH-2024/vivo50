@@ -16,6 +16,7 @@ listen_ip = settings["listen_ip"]
 listen_port = settings["web_listen_central"]
 central_ip = settings["central_ip"]
 central_port = settings["web_send_central"]
+json_file = settings["json_path"]
 json_file2 = settings["json_path2"]
 upload_path = settings["upload_path"]
 
@@ -248,8 +249,10 @@ def Search_to_central(query):      # 向中央服务器传送查询命令
                 part1 = str_part[:split_index]  # 切割第一部分
                 part2 = str_part[split_index + 1:]  # 切割第二部分
                 add_new_file(part1,part2)
+                change_path_id(json_file,json_file2,part1,part2)
             else:
                 change_json.add_file_to_json(json_file2, '', str_part)
+                change_path_id(json_file,json_file2,'', str_part)
         return True
 
     except OSError as e:

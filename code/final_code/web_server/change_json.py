@@ -38,6 +38,83 @@ def get_work_dir(json_file, path, file_name):
     return current_dir
 
 
+
+def remove_file_from_json(json_file, path, file_name):
+    with open(json_file, 'r') as f:
+        data = json.load(f)
+    path = path.strip('/').split('/')[:-1]
+    # 遍历路径，找到要删除文件的位置
+    if path == ['']:
+        current_dir = data
+    else:
+        current_dir = data
+        for folder in path:
+            current_dir = next(child for child in current_dir['children']
+                               if child['name'] == folder)
+    # 查找要删除的文件并从列表中移除
+    file_to_remove = next(child for child in current_dir['children']
+                          if child['name'] == file_name)
+    current_dir['children'].remove(file_to_remove)
+
+    # 将更新后的Python对象转换回JSON格式
+    updated_json = json.dumps(data, indent=4)
+
+    # 将更新后的JSON写入原始文件或另存为新文件
+    with open(json_file, 'w') as f:
+        f.write(updated_json)
+
+
+def get_path_id(json_file, path, file_name):
+    current_dir = get_work_dir(json_file, path, file_name)
+    for file in current_dir['children']:
+        if file['name'] == file_name:
+            return file['id']
+    return None
+
+def change_path_id(json_file, json_file2, path, file_name):
+    correct_id = get_path_id(json_file, path, file_name)
+    remove_file_from_json(json_file2, path + '/' + file_name, file_name)
+
+    with open(json_file2, 'r') as f:
+        data = json.load(f)
+    new_file_id = correct_id
+
+    # current_dir = get_work_dir(json_file, path, file_name)
+    # print(current_dir)
+    # 将路径转换为列表形式
+    path = path.strip('/').split('/')
+
+    # 遍历路径，找到要添加文件的位置
+    if path == ['']:
+        current_dir = data
+    else:
+        current_dir = data
+        for folder in path:
+            current_dir = next(child for child in current_dir['children']
+                               if child['name'] == folder)
+
+    if any(file['name'] == file_name for file in current_dir['children']):
+        return False  # 存在同名文件，返回 False
+    # 创建新的文件对象并添加到路径中
+    new_file = {
+        'id': new_file_id,
+        'name': file_name,
+        'isdir': False,
+        'children': []
+    }
+    # print(new_file)
+    current_dir['children'].append(new_file)
+
+    # 将更新后的Python对象转换回JSON格式
+    updated_json = json.dumps(data, indent=4)
+
+    # 将更新后的JSON写入原始文件或另存为新文件
+    with open(json_file2, 'w') as f:
+        f.write(updated_json)
+
+    print('change path id success')
+
+
 # 判断是否有重名文件
 def is_file_exist(json_file, path, file_name):
     current_dir = get_work_dir(json_file, path, file_name)
@@ -124,32 +201,6 @@ def add_dir_to_json(json_file, path, folder_name):
     with open(json_file, 'w') as f:
         f.write(updated_json)
     return True, new_file_id
-
-
-def remove_file_from_json(json_file, path, file_name):
-    with open(json_file, 'r') as f:
-        data = json.load(f)
-    path = path.strip('/').split('/')[:-1]
-    # 遍历路径，找到要删除文件的位置
-    if path == ['']:
-        current_dir = data
-    else:
-        current_dir = data
-        for folder in path:
-            current_dir = next(child for child in current_dir['children']
-                               if child['name'] == folder)
-    # 查找要删除的文件并从列表中移除
-    file_to_remove = next(child for child in current_dir['children']
-                          if child['name'] == file_name)
-    current_dir['children'].remove(file_to_remove)
-
-    # 将更新后的Python对象转换回JSON格式
-    updated_json = json.dumps(data, indent=4)
-
-    # 将更新后的JSON写入原始文件或另存为新文件
-    with open(json_file, 'w') as f:
-        f.write(updated_json)
-
 
 def remove_dir_from_json(json_file, path):
     with open(json_file, 'r') as f:

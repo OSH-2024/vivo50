@@ -86,6 +86,7 @@ def download_file():
         print('element:', element_id)
         fileid = int(element_id[7:])
         print('id:',fileid)
+        print(path)
         if connect_to_central.download_to_central(fileid, filename, target_path, path):
             print('download from central success')
             message_forward('download success')

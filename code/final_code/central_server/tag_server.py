@@ -47,6 +47,7 @@ def index_upload(fileid, filename, tmpfile_path):
         return True
         # print(len(res[0].get('n').get('embedding')))
     except Exception as e :
+        print(e)
         return False
 
 # if __name__ == "__main__":
