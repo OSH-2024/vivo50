@@ -17,7 +17,7 @@ appid = "b75e9b1e"    #填写控制台中获取的 APPID 信息
 api_secret = "N2Y4NjE3ZmJhZTk1MjJiNWZiMGY4YjJh"   #填写控制台中获取的 APISecret 信息
 api_key ="763a46ae2c351c22df94e63cbd4e9c1c"    #填写控制台中获取的 APIKey 信息
 imageunderstanding_url = "wss://spark-api.cn-huabei-1.xf-yun.com/v2.1/image"#云端环境的服务地址
-#imagedata = open("/home/liuchang/testfs/7.png",'rb').read()
+#imagedata = open("/home/liuchang/newfs/7.png",'rb').read()
 #text =[{"role": "user", "content": str(base64.b64encode(imagedata), 'utf-8'), "content_type":"image"}]
 
 class Ws_Param(object):

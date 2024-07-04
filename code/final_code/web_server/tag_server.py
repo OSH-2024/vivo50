@@ -25,7 +25,7 @@ def index_upload(fileid, filename, tmpfile_path):
     read_name = filename
     file_ext=filename.split(".")[-1]
     if file_ext == "wav" or file_ext == "mp3":
-        read_path = "/home/liuchang/testfs/central_server/wav2txt.txt"
+        read_path = "/home/liuchang/newfs/central_server/wav2txt.txt"
         read_name = "wav2txt.txt"
 
     try:
