@@ -132,9 +132,9 @@ def Search_to_central(query):      # 向中央服务器传送查询命令
     # content = '/home/liuchang/upfile/1.png'
     print("查询的内容是:")
     print(query)
-    content = IndexSearch(query)
+    parts = IndexSearch(query)
     print("查询得到的内容是：")
-    print(content)
+    print(parts)
     data = {
         "id": 1,
         "name": "/",
@@ -152,8 +152,6 @@ def Search_to_central(query):      # 向中央服务器传送查询命令
     #to be done
         
     print('成功得到搜索结果')
-
-    parts = content.split(split_char) 
 
     for part in parts:
         str_part = part[len(upload_path)+1:]

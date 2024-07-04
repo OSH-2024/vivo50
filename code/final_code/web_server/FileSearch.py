@@ -1,9 +1,10 @@
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.vector_stores.neo4jvector import Neo4jVectorStore
+from llama_index.core.indices import MultiModalVectorStoreIndex
 username = "neo4j"
 password = "oshvivo50"
 url = "neo4j://localhost"
-embed_dim = 738
+embed_dim = 768
 
 from llama_index.embeddings.nomic import NomicEmbedding
 api_key = "nk-Fd--NtdLRVionYfsi4CS35FafKT_ddYP1I5OU1rOzk4"
@@ -14,75 +15,34 @@ setting=config.args()
 settings=setting.set     
 split_char=settings["split_char"]
 embedding_model = NomicEmbedding(model_name="nomic-embed-text-v1.5",vision_model_name="nomic-embed-vision-v1.5", api_key="nk-Fd--NtdLRVionYfsi4CS35FafKT_ddYP1I5OU1rOzk4")
+text_store = Neo4jVectorStore(
+    username, password, url, embed_dim,
+    index_name="text",
+)
+image_store = Neo4jVectorStore(
+    username, password, url, embed_dim,
+    index_name="image",
+)
+index = MultiModalVectorStoreIndex.from_vector_store( 
+    vector_store = text_store,
+    image_vector_store = image_store,
+    embed_model = embedding_model,
+    image_embed_model = embedding_model
+)
+retriever = index.as_retriever(similarity_top_k=10, image_similarity_top_k=20)
+
+print("[FileSearch.py] Initialized retriever. ")
+def process_results(results):
+    # for result in results:
+    #     print(f"Score: {result.score:.4f} - File: {result.metadata['file_path']}")
+    return [result.metadata['file_path'] for result in results]
 def IndexSearch(query):
-    #
-    neo4j_vector = Neo4jVectorStore(username, password, url, embed_dim)
-    print("获取所有的文件节点")
-    # 获取所有的文件节点
-    stored_vector = neo4j_vector.database_query("MATCH (n:File) RETURN n")
-    tag_vector = neo4j_vector.database_query("MATCH(n:Tag) return n")
-    print(tag_vector)
-    # embeddings = HuggingFaceEmbedding(model_name="BAAI/bge-large-zh-v1.5", truncate_dim=1024)
-    query_vector = embedding_model.get_query_embedding(query)
-    tag_similarity = []
-    for tag in tag_vector:
-        embedding = tag.get('n').get('embedding')
-        similarity = embedding_model.similarity(embedding,query_vector)
-        tag_similarity.append(similarity)
-        print(tag.get('n').get('name'))
-        print(similarity)
-    
-    # tag_res = sorted(tag_similarity)
-    # for res in tag_res:
-    #     index = tag_similarity.index(res)
-    print("获取所有的vector")
-    # 获取所有的vector
-    vector_list = []
-    for vector in stored_vector:
-        vector_list.append(vector.get('n').get('embedding'))
-    print(len(vector_list))
-    similarity_res = []
-    print("计算余弦相似度")
-    # 计算余弦相似度
-    for vector in vector_list:
-        similarity = embedding_model.similarity(vector, query_vector)
-        print(similarity)
-        similarity_res.append(similarity)
-    print("获取相似度最大的几个文件")
-    # 获取相似度最大的几个文件
-    # 降序排列
-    # print(similarity_res)
-    sorted_res = sorted(similarity_res, reverse= True)
-    # 判断相关性
-    # 初步判断余弦相似度相差在0.03以内进行推荐
-    # print("找对应的index")
-    difference = 0.005
-    # 找对应的index
-    retrieve_index = []
-    # split_char = 
-    # retrieve_files = f""
-    for res in  sorted_res:
-        max_res = sorted_res[0]
-        if((max_res - res) < difference):
-            index = similarity_res.index(res)
-            retrieve_index.append(index)
-            # # 获取结点文件路径
-            # stored_vector[index].get('n').get('file_path')
-        else:
-            break
-    print("获取结点文件路径")
-    retrieve_files = f""
-    for i in range(len(retrieve_index)):
-        # 获取结点文件路径
-        if i == 0:
-            retrieve_files = stored_vector[retrieve_index[0]].get('n').get('FilePath')
-        else:
-            path = stored_vector[retrieve_index[i]].get('n').get('FilePath')
-            retrieve_files = retrieve_files + split_char + path
-    return retrieve_files
+    results = retriever.retrieve(query)
+    return process_results(results)
+def IndexSearchImage(image_path):
+    retrieval_results = retriever.image_to_image_retrieve(image_path)
+    return process_results(results)
 
 if __name__ == "__main__":
     filepath = IndexSearch("two brown dogs")
     print(filepath)
-
-

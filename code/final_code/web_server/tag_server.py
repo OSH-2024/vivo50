@@ -5,6 +5,7 @@ from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 from llama_index.core import StorageContext
 from llama_index.core import ServiceContext, StorageContext, Settings
 
+from llama_index.core.indices import MultiModalVectorStoreIndex
 from llama_index.embeddings.nomic import NomicEmbedding
 username = "neo4j"
 password = "oshvivo50"
@@ -19,6 +20,22 @@ import config
 setting=config.args()
 settings=setting.set
 
+text_store = Neo4jVectorStore(
+    username, password, url, embed_dim,
+    index_name="text"
+)
+image_store = Neo4jVectorStore(
+    username, password, url, embed_dim,
+    index_name="image"
+)
+
+storage_context = StorageContext.from_defaults(
+    vector_store = text_store,
+    image_store = image_store
+)
+embedding_model = NomicEmbedding(model_name="nomic-embed-text-v1.5",vision_model_name="nomic-embed-vision-v1.5", api_key=api_key)
+print("[tag_server.py] Initialized storage context.")
+
 def index_upload(fileid, filename, tmpfile_path):
     # 生成vector并存储在neo4j中
     read_path = tmpfile_path
@@ -29,12 +46,14 @@ def index_upload(fileid, filename, tmpfile_path):
         read_name = "wav2txt.txt"
 
     try:
-        neo4j_vector = Neo4jVectorStore(username, password, url, embed_dim)
-        documents = SimpleDirectoryReader(input_files= [read_path]).load_data()
-        storage_context = StorageContext.from_defaults(vector_store=neo4j_vector)
-        embedding_model = NomicEmbedding(model_name="nomic-embed-text-v1.5",vision_model_name="nomic-embed-vision-v1.5", api_key=api_key)
-        index = VectorStoreIndex.from_documents(
-                documents, storage_context=storage_context, embed_model= embedding_model)
+        documents = SimpleDirectoryReader(input_files= [tmpfile_path]).load_data()
+        print("Creating index for ",tmpfile_path)
+        index = MultiModalVectorStoreIndex.from_documents(
+                documents, 
+                storage_context=storage_context, 
+                embed_model= embedding_model,
+                image_embed_model = embedding_model)
+        print("Indexing done.")
 
         # print(filepath)
         # 添加File标签， FileID， FilePath， FileName属性
@@ -47,9 +66,8 @@ def index_upload(fileid, filename, tmpfile_path):
         print(query)
         # 执行query语句，从而设置了 FileID，FilePath， FileName
         res = neo4j_vector.database_query(query)
-        print(res)
+        # print(res)
         return True
-        # print(len(res[0].get('n').get('embedding')))
     except Exception as e :
         print(e)
         return False
