@@ -6,7 +6,7 @@ import ray
 import queue
 from threading import Thread
 import Ray_Module 
-from FileSearch import IndexSearch
+from FileSearch import IndexSearch, ImageSearch
 from tag_server import index_upload
 import change_json
 
@@ -133,6 +133,54 @@ def Search_to_central(query):      # 向中央服务器传送查询命令
     print("查询的内容是:")
     print(query)
     parts = IndexSearch(query)
+    print("查询得到的内容是：")
+    print(parts)
+    data = {
+        "id": 1,
+        "name": "/",
+        "isdir": True,
+        "children": []
+    }
+
+    # 清空文件内容
+    with open(json_file2, "w") as file:
+        file.write("")
+
+    # 写入新的 JSON 数据
+    with open(json_file2, "w") as file:
+        json.dump(data, file, indent=4)
+    #to be done
+        
+    print('成功得到搜索结果')
+
+    for part in parts:
+        str_part = part[len(upload_path)+1:]
+        print("搜索结果为：")
+        print(str_part)
+        split_index = str_part.rfind('/') 
+        if split_index != -1:
+            part1 = str_part[:split_index]  # 切割第一部分
+            part2 = str_part[split_index + 1:]  # 切割第二部分
+            add_new_file(part1,part2)
+            change_json.change_path_id(json_file,json_file2,part1,part2)
+        else:
+            change_json.add_file_to_json(json_file2, '', str_part)
+            change_json.change_path_id(json_file,json_file2,'', str_part)
+    
+    print('成功写入json文件')
+
+    return True
+
+def Image_search(file):
+    filename = file.filename
+    content = file.read()
+    print("开始图片查询, 文件名:",filename)
+    tmpfile_path = os.path.join(upload_path + '/tmp', filename) # Temp path to hold image file
+    with open(tmpfile_path, 'wb') as file:
+        file.write(content)
+        print('图片已写入缓冲区')
+    parts = ImageSearch(tmpfile_path)
+    
     print("查询得到的内容是：")
     print(parts)
     data = {

@@ -221,9 +221,9 @@
                 });
             });
 
-            function updateButtonLabel(input) {
+            function updateButtonLabel(input, button_id) {
                 var file = input.files[0];
-                var button = document.getElementById('upload_button');
+                var button = document.getElementById(button_id);
                 button.innerHTML = file ? file.name : 'Choose File';
             }
         </script>
@@ -283,7 +283,7 @@
                         Choose File
                     </label>
                     <input type="file" id="file-upload" name="file" style="display: none;"
-                        onchange="updateButtonLabel(this)">
+                        onchange="updateButtonLabel(this, 'upload_button')">
                     <input type="submit" value="Upload" class="btn btn-primary">
                 </form>
             </div>
@@ -314,6 +314,17 @@
                 <form action="{{ url_for('search', path=path  )}}" method="post" enctype="multipart/form-data">
                     <input type="text" name="query" id="query_content">
                     <input type="submit" value="Search" class="btn btn-primary">
+                </form>
+            </div>
+            <div class="form-container">
+                <form action="{{ url_for('image_search', path=path) }}" method="post" enctype="multipart/form-data">
+                    <label for="image-search" class="btn btn-primary" id="image_search_button" style="margin-top: 0.5rem;"
+                        name="label">
+                        Choose File
+                    </label>
+                    <input type="file" id="image-search" name="file" style="display: none;"
+                        onchange="updateButtonLabel(this, 'image_search_button')">
+                    <input type="submit" value="Image Search" class="btn btn-primary">
                 </form>
             </div>
         </div>

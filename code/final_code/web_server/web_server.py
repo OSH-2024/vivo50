@@ -165,6 +165,19 @@ def search():
             message_forward('search fail')
     return render_template('index.html')#渲染网页
 
+@app.route('/image_search', methods=['GET','POST'])
+def image_search():
+    if request.method == 'POST':
+        file = request.files['file']
+        if not file:
+            message_forward('文件不能为空！')
+            return redirect(url_for('index'))
+        if central_server.Image_search(file) :
+            message_forward('search success')
+        else :
+            message_forward('search fail')
+    return render_template('index.html')#渲染网页
+
 
 @socketio.on('message')
 def message_forward(msg: str):

@@ -15,9 +15,8 @@ setting=config.args()
 settings=setting.set     
 split_char=settings["split_char"]
 embedding_model = NomicEmbedding(model_name="nomic-embed-text-v1.5",vision_model_name="nomic-embed-vision-v1.5", api_key="nk-Fd--NtdLRVionYfsi4CS35FafKT_ddYP1I5OU1rOzk4")
-def IndexSearch(query):
+def VectorSearch(query_vector, top_k = 10):
     neo4j_vector = Neo4jVectorStore(username, password, url, embed_dim)
-    query_vector = embedding_model.get_query_embedding(query)
     print("获取所有的文件节点")
     # 获取所有的文件节点
     stored_nodes = neo4j_vector.database_query("MATCH (n:File) RETURN n")
@@ -37,7 +36,12 @@ def IndexSearch(query):
             seen.add(node['n']['file_path'])
     retrieve_index = []
     
-    return [node['n']['file_path'] for node in deduplicated_nodes[:10]]
+    return [node['n']['file_path'] for node in deduplicated_nodes[:top_k]]
+    
+def IndexSearch(query):
+    return VectorSearch(embedding_model.get_query_embedding(query))
+def ImageSearch(image_path):
+    return VectorSearch(embedding_model.get_image_embedding(image_path))
 
 if __name__ == "__main__":
     results = IndexSearch("cat")
