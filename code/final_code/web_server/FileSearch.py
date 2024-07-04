@@ -33,11 +33,12 @@ retriever = index.as_retriever(similarity_top_k=10, image_similarity_top_k=20)
 
 print("[FileSearch.py] Initialized retriever. ")
 def process_results(results):
-    # for result in results:
-    #     print(f"Score: {result.score:.4f} - File: {result.metadata['file_path']}")
     return [result.metadata['file_path'] for result in results]
 def IndexSearch(query):
     results = retriever.retrieve(query)
+    print(f"Results of querying {query}:")
+    for result in results:
+        print(f"Score: {result.score:.4f} - File: {result.metadata['file_path']}")
     return process_results(results)
 def IndexSearchImage(image_path):
     retrieval_results = retriever.image_to_image_retrieve(image_path)

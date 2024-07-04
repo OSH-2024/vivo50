@@ -19,7 +19,7 @@ os.environ["NOMIC_API_KEY"]="nk-Fd--NtdLRVionYfsi4CS35FafKT_ddYP1I5OU1rOzk4"
 import config
 setting=config.args()
 settings=setting.set
-
+neo4j_vector = Neo4jVectorStore(username, password, url, embed_dim)
 text_store = Neo4jVectorStore(
     username, password, url, embed_dim,
     index_name="text"
