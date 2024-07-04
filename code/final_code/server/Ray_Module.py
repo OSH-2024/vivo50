@@ -20,23 +20,6 @@ keywords_num=settings["keywords_num"]
 
 result_holder = [False]
 
-def ray_control(message):
-    # 解析
-    command=message.split(split_char)[0]
-    fileid=message.split(split_char)[1]
-    filename=message.split(split_char)[2]
-    filepath=message.split(split_char)[3]
-    print('massage is:')
-    print(message)
-    if command == "Upload":
-        return Upload(fileid,filename,filepath)
-    elif command == "Delete":
-        return Delete(filename,fileid,filepath)
-    elif command == "Commit":
-        return Commit()
-    else:
-        print("Error:Undefined command")
-
 def Upload(fileid,filename,filepath):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     if use_ray:
