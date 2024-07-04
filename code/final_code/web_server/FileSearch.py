@@ -15,35 +15,30 @@ setting=config.args()
 settings=setting.set     
 split_char=settings["split_char"]
 embedding_model = NomicEmbedding(model_name="nomic-embed-text-v1.5",vision_model_name="nomic-embed-vision-v1.5", api_key="nk-Fd--NtdLRVionYfsi4CS35FafKT_ddYP1I5OU1rOzk4")
-text_store = Neo4jVectorStore(
-    username, password, url, embed_dim,
-    index_name="text",
-)
-image_store = Neo4jVectorStore(
-    username, password, url, embed_dim,
-    index_name="image",
-)
-index = MultiModalVectorStoreIndex.from_vector_store( 
-    vector_store = text_store,
-    image_vector_store = image_store,
-    embed_model = embedding_model,
-    image_embed_model = embedding_model
-)
-retriever = index.as_retriever(similarity_top_k=10, image_similarity_top_k=20)
-
-print("[FileSearch.py] Initialized retriever. ")
-def process_results(results):
-    return [result.metadata['file_path'] for result in results]
 def IndexSearch(query):
-    results = retriever.retrieve(query)
-    print(f"Results of querying {query}:")
-    for result in results:
-        print(f"Score: {result.score:.4f} - File: {result.metadata['file_path']}")
-    return process_results(results)
-def IndexSearchImage(image_path):
-    retrieval_results = retriever.image_to_image_retrieve(image_path)
-    return process_results(results)
+    neo4j_vector = Neo4jVectorStore(username, password, url, embed_dim)
+    query_vector = embedding_model.get_query_embedding(query)
+    print("获取所有的文件节点")
+    # 获取所有的文件节点
+    stored_nodes = neo4j_vector.database_query("MATCH (n:File) RETURN n")
+    print([_['n']['file_path'] for _ in stored_nodes])
+
+    sorted_nodes = sorted(
+        stored_nodes,
+        reverse = True, 
+        key = lambda node : embedding_model.similarity(node['n']['embedding'], query_vector)
+    )
+    # 去重
+    seen = set()
+    deduplicated_nodes = []
+    for node in sorted_nodes:
+        if node['n']['file_path'] not in seen:
+            deduplicated_nodes.append(node)
+            seen.add(node['n']['file_path'])
+    retrieve_index = []
+    
+    return [node['n']['file_path'] for node in deduplicated_nodes[:10]]
 
 if __name__ == "__main__":
-    filepath = IndexSearch("two brown dogs")
-    print(filepath)
+    results = IndexSearch("cat")
+    print(results)
