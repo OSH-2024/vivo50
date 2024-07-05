@@ -186,4 +186,11 @@ def message_forward(msg: str):
 
 if __name__ == '__main__':
     print("进程pid是"+str(os.getpid()))
-    app.run(host='0.0.0.0', port=visit_web_port)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--port', type=int, help='Port number', required=True)
+    args = parser.parse_args()
+    port = args.port
+    if port == None: port = visit_web_port
+    print(f"Port: {port}")
+    app.run(host='0.0.0.0', port=port)
