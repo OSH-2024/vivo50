@@ -44,7 +44,8 @@ def ImageSearch(image_path):
     return VectorSearch(embedding_model.get_image_embedding(image_path))
 
 def SimilarSearch(fileid):
-    node = neo4j_vector.database_query("MATCH (n:File{FileID: \""+ fileid+ "\"}) return n")[0]
+    neo4j_vector = Neo4jVectorStore(username, password, url, embed_dim)
+    node = neo4j_vector.database_query("MATCH (n:File{FileID: \""+ str(fileid)+ "\"}) return n")[0]
     query_vector = node['n']['embedding']
     return VectorSearch(query_vector)
 

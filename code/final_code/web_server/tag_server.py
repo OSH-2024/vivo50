@@ -48,7 +48,8 @@ def index_upload(fileid, filename, tmpfile_path):
         read_name = "wav2txt.txt"
 
     try:
-        documents = SimpleDirectoryReader(input_files= [tmpfile_path]).load_data()
+        documents = SimpleDirectoryReader(input_files= [read_path]).load_data()
+        documents[0].metadata['file_path'] = "qwq" + tmpfile_path
         print("Creating index for ",tmpfile_path)
         index = MultiModalVectorStoreIndex.from_documents(
                 documents, 
