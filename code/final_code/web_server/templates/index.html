@@ -311,6 +311,12 @@
                 </form>
             </div>
             <div class="form-container">
+                <form action="{{ url_for('similar', path=path) }}" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="id" id="similar_id">
+                    <input type="submit" value="Similar" class="btn btn-primary">
+                </form>
+            </div>
+            <div class="form-container">
                 <form action="{{ url_for('search', path=path  )}}" method="post" enctype="multipart/form-data">
                     <input type="text" name="query" id="query_content">
                     <input type="submit" value="Search" class="btn btn-primary">

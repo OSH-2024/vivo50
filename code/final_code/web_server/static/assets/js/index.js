@@ -129,6 +129,7 @@ function generate_list(data, parent) {
                 document.getElementById("download_is_dir").value = check_is_dir();
                 document.getElementById("remove_is_dir").value = check_is_dir();
                 document.getElementById("remove_id").value = get_current_file_id();
+                document.getElementById("similar_id").value = get_current_file_id();
                 document.getElementById("dir_path_value").value = path;
                 document.getElementById("download_path_value").value = full_path;
                 document.getElementById("download_id").value = get_current_file_id();

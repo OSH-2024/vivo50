@@ -178,6 +178,20 @@ def image_search():
             message_forward('search fail')
     return render_template('index.html')#渲染网页
 
+@app.route('/similar', methods=['GET','POST'])
+def similar():
+    if request.method == 'POST':
+        element_id = request.form.get('id', '')
+        try:
+            fileid = int(element_id[7:])
+            if central_server.Similar(fileid) :
+                message_forward('search success')
+            else :
+                message_forward('search fail')
+        except:
+            return redirect(url_for('index'))
+    return render_template('index.html')
+
 
 @socketio.on('message')
 def message_forward(msg: str):
@@ -188,7 +202,7 @@ if __name__ == '__main__':
     print("进程pid是"+str(os.getpid()))
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--port', type=int, help='Port number', required=True)
+    parser.add_argument('-p', '--port', type=int, help='Port number', required=False)
     args = parser.parse_args()
     port = args.port
     if port == None: port = visit_web_port

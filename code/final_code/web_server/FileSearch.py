@@ -43,6 +43,11 @@ def IndexSearch(query):
 def ImageSearch(image_path):
     return VectorSearch(embedding_model.get_image_embedding(image_path))
 
+def SimilarSearch(fileid):
+    node = neo4j_vector.database_query("MATCH (n:File{FileID: \""+ fileid+ "\"}) return n")[0]
+    query_vector = node['n']['embedding']
+    return VectorSearch(query_vector)
+
 if __name__ == "__main__":
     results = IndexSearch("cat")
     print(results)
