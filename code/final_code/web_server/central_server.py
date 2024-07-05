@@ -67,7 +67,7 @@ def upload_to_central(fileid, filename, file, filepath):      # 把文件上传�
 
 
 
-def download_to_central(fileid, filename, targetpath, filepath):
+def download_to_central(filename, targetpath, filepath):
     print('开始下载')
     content = ''
     # 打开要发送的文件

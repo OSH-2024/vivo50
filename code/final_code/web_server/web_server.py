@@ -3,8 +3,9 @@ import sys
 import shutil   #用于删除目录
 import change_json
 import central_server
+from FileSearch import GetPoints
 from flask_socketio import SocketIO
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, jsonify
 
 sys.path.append(os.path.dirname(sys.path[0]))
 import config
@@ -29,6 +30,9 @@ json_file = json_path # 定义了一个 JSON 文件的路径 json_file，这个�
 @app.route('/') # 用于将下面的函数与根路径 '/' 关联起来。当用户访问根路径时，Flask 将会调用被装饰的函数来处理请求
 def index():
     return render_template('index.html') #渲染模板文件
+@app.route('/visualize.html')
+def visualize():
+    return render_template('visualize.html')
 
 
 @app.route('/upload', methods=['GET', 'POST']) # 将下面的函数与路径 '/upload' 关联起来，并指定支持的请求方法为 GET 和 POST
@@ -73,26 +77,19 @@ def download_file():
             print('不能下载文件夹')
             message_forward('不能下载文件夹！')
             return redirect(url_for('index'))
-        # path = request.form.get('path', '')
-
+            
         path = request.form.get('path', '')
         path = path [1:]
-        #print('ggggggggggggggggggggggggg')
-        #print()
-        #print(path)
+        print("downloading:", path)
         filename = os.path.basename(path)
         target_path = os.path.join(app.config['DOWNLOAD_FOLDER'],filename)  # 下载到的目标路径
-        element_id = request.form.get('id', '')
-        print('element:', element_id)
-        fileid = int(element_id[7:])
-        print('id:',fileid)
         print(path)
-        if central_server.download_to_central(fileid, filename, target_path, path):
+        if central_server.download_to_central(filename, target_path, path):
             print('download from central success')
             message_forward('download success')
             return send_from_directory(app.config['DOWNLOAD_FOLDER'],
-                                       filename,
-                                       as_attachment=True)
+                                        filename,
+                                        as_attachment=True)
         else:
             message_forward('下载失败！')
             print('从central server下载失败')
@@ -192,6 +189,10 @@ def similar():
             return redirect(url_for('index'))
     return render_template('index.html')
 
+# 2d points of documents
+@app.route('/get_points', methods=['GET','POST'])
+def get_points():
+    return jsonify(GetPoints())
 
 @socketio.on('message')
 def message_forward(msg: str):
