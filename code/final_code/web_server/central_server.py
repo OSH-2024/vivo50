@@ -9,6 +9,7 @@ import Ray_Module
 from FileSearch import IndexSearch, ImageSearch, SimilarSearch
 from tag_server import index_upload
 import change_json
+import EC_Module
 
 sys.path.append(os.path.dirname(sys.path[0]))   # 将当前脚本的父目录添加到sys.path列表中。sys.path列表用于确定Python在导入模块时搜索的位置
 import config                               # 导入config模块的内容
@@ -52,14 +53,14 @@ def upload_to_central(fileid, filename, file, filepath):      # 把文件上传�
         print('ray commit error')
         return False
     print("写入Ray模块成功")
-
     print("开始写入JuiceFS")
  #   print('-----------------------------')
  #   print()
  #   print(file_name)
 
-    with open(file_name, "wb") as file:
-        file.write(content)
+    EC_Module.EC_upload(3 ,5, file_name, content)
+    #with open(file_name, "wb") as file:
+    #    file.write(content)
     print("写入JuiceFS成功")
     
     return True
@@ -72,9 +73,7 @@ def download_to_central(filename, targetpath, filepath):
     content = ''
     # 打开要发送的文件
     file_path = os.path.join(storage_path, filepath)
-    with open(file_path, 'rb') as file:
-        # 读取文件内容
-        content = file.read()
+    content = EC_Module.EC_download(3, 5, file_path)
     print("文件发送完成")
     with open(targetpath, 'wb') as f:
         f.write(content)
@@ -99,7 +98,7 @@ def Delete_to_central(fileid, filename, filepath):
 
     print("开始在JuiceFS中删除文件")
     os.remove(delete_path)
-    os.remove(tmpfile_path)
+    EC_Module.EC_upload(3 ,5, tmpfile_path, content)
     #print(filepath)
     #print(fileid)
     #print(filename)
