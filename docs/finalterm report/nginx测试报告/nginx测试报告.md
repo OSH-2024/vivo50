@@ -82,10 +82,10 @@ server {
 }
 }
 ```
-在配置文件中的http中设置一个upstream，其中有四个服务器运行的IP地址以及端口,然后在server模块中设置监听5005模块，当访问到根url"/"时，location会返回http://domain(也就是前面设置的upstream的名字)，这样nginx就会根据设置的负载均衡策略(此处缺省则策略为循环，也就是依次访问upstream中设置的服务器)将发送到localhost:5005的请求转发到upstream中设置的其中一个服务器中。这样即实现了反向代理以及负载均衡。
+在配置文件中的http中设置一个upstream，其中有四个服务器运行的IP地址以及端口,然后在server模块中设置监听5005模块，当访问到根url"/"时，location会返回http://domain (也就是前面设置的upstream的名字)，这样nginx就会根据设置的负载均衡策略(此处缺省则策略为循环，也就是依次访问upstream中设置的服务器)将发送到localhost:5005的请求转发到upstream中设置的其中一个服务器中。这样即实现了反向代理以及负载均衡。
 #### 测试结果
-使用`ab -m GET -n 3000 -c 100 http://localhost:5005/`命令使用apache bench向nginx服务器发送3000个请求，并发数为100，可以看到测试结果如下：
-![](./pics/nginx1.png)
+使用`ab -m GET -n 3000 -c 100 http://localhost:5005/`命令使用apache bench向nginx服务器发送3000个请求，并发数为100，可以看到测试结果如下：  
+![](./pics/nginx1.png)  
 测试过发现最多只能承受300的并发数，故还需优化性能。
 
 ## 性能优化
@@ -102,8 +102,8 @@ events {
 	worker_connections 204800;
 }
 ```
-设置完毕后再使用`ab`命令测试最大可以承受的并发数，可以发现可以达到10000的并发，如图所示
-![](./pics/nginx2.png)
+设置完毕后再使用`ab`命令测试最大可以承受的并发数，可以发现可以达到10000的并发，如图所示  
+![](./pics/nginx2.png)  
 但是从图中可以看到Requests per second只有324，故还需要提高性能。
 #### 提高requests per second
 1. 设置客户端请求体缓存区大小: 
@@ -163,8 +163,8 @@ events {
     ```
     将这些内容写入/etc/sysctl.conf文件中，并使用`sysctl -p`命令使这些设置生效。
 
-最后再使用`ab -m GET -c 6000 -n 100000 http://localhost:5005/`命令测试性能，可以看到requests per second提升到了7700次每秒，如图(这里将nginx监听的端口改为了5007)：
-![](./pics/nginx3.png)
+最后再使用`ab -m GET -c 6000 -n 100000 http://localhost:5005/`命令测试性能，可以看到requests per second提升到了7700次每秒，如图(这里将nginx监听的端口改为了5007)：  
+![](./pics/nginx3.png)  
 
 ## 完整配置文件
 最后贴一下完整的nginx配置文件
